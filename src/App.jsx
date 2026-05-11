@@ -1,9 +1,7 @@
+import Dashboard from "./pages/Dashboard";
+
 function App() {
-  return (
-    <main className="min-h-screen p-6">
-      <h1 className="text-3xl font-bold">JobTracker</h1>
-    </main>
-  );
+  return <Dashboard />;
 }
 
 export default App;
