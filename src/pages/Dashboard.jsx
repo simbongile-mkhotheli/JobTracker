@@ -1,8 +1,10 @@
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
-import { mockApplications } from "../data/mockApplications";
+import { useApplications } from "../hooks/useApplications";
 
 export default function Dashboard() {
+  const { applications, deleteApplication } = useApplications();
+
   return (
     <DashboardLayout>
       <section>
@@ -16,7 +18,10 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <ApplicationsGrid applications={mockApplications} />
+        <ApplicationsGrid
+          applications={applications}
+          onDelete={deleteApplication}
+        />
       </section>
     </DashboardLayout>
   );
