@@ -1,14 +1,22 @@
 import { DashboardLayout } from "../layouts/DashboardLayout";
+import { ApplicationsGrid } from "../components/ApplicationsGrid";
+import { mockApplications } from "../data/mockApplications";
 
 export default function Dashboard() {
   return (
     <DashboardLayout>
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h2 className="text-xl font-semibold">Applications Overview</h2>
+      <section>
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold text-white">
+            Recent Applications
+          </h2>
 
-        <p className="mt-2 text-slate-400">
-          Dashboard functionality will be implemented in upcoming iterations.
-        </p>
+          <p className="mt-1 text-slate-400">
+            Track your latest job applications.
+          </p>
+        </div>
+
+        <ApplicationsGrid applications={mockApplications} />
       </section>
     </DashboardLayout>
   );
