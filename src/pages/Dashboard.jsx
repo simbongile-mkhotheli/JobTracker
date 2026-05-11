@@ -1,12 +1,19 @@
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
+import { ApplicationForm } from "../components/ApplicationForm";
 import { useApplications } from "../hooks/useApplications";
 
 export default function Dashboard() {
-  const { applications, deleteApplication } = useApplications();
+  const {
+    applications,
+    addApplication,
+    deleteApplication,
+  } = useApplications();
 
   return (
     <DashboardLayout>
+      <ApplicationForm onSubmit={addApplication} />
+
       <section>
         <div className="mb-6">
           <h2 className="text-2xl font-semibold text-white">
