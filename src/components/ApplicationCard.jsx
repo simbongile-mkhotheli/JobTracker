@@ -1,4 +1,4 @@
-import { Calendar, Trash2 } from "lucide-react";
+import { Calendar, PencilLine, Trash2 } from "lucide-react";
 
 const STATUS_STYLES = {
   Applied: "bg-sky-500/15 text-sky-300 border-sky-500/20",
@@ -15,7 +15,7 @@ function formatDate(date) {
   });
 }
 
-export function ApplicationCard({ application, onDelete }) {
+export function ApplicationCard({ application, onDelete, onEdit }) {
   const { company, role, status, dateApplied } = application;
 
   return (
@@ -47,6 +47,15 @@ export function ApplicationCard({ application, onDelete }) {
         <Calendar size={15} />
         <span>{formatDate(dateApplied)}</span>
       </div>
+
+      <button
+        type="button"
+        onClick={() => onEdit(application)}
+        className="mt-4 mr-3 inline-flex items-center rounded-lg border border-sky-500/20 bg-sky-500/10 px-3 py-2 text-sm text-sky-300 transition hover:bg-sky-500/20"
+      >
+        <PencilLine size={14} className="mr-2" />
+        Edit
+      </button>
 
       <button
         type="button"

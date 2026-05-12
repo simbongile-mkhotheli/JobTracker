@@ -3,6 +3,7 @@ import { ApplicationCard } from "./ApplicationCard";
 export function ApplicationsGrid({
   applications,
   onDelete,
+  onEdit,
 }) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -11,6 +12,7 @@ export function ApplicationsGrid({
           key={application.id}
           application={application}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>
