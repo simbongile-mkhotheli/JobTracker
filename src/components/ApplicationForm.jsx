@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const INITIAL_FORM = {
   company: "",
@@ -7,8 +7,16 @@ const INITIAL_FORM = {
   dateApplied: "",
 };
 
-export function ApplicationForm({ onSubmit }) {
-  const [formData, setFormData] = useState(INITIAL_FORM);
+export function ApplicationForm({
+  onSubmit,
+  initialValues = INITIAL_FORM,
+  submitLabel = "Add Application",
+}) {
+  const [formData, setFormData] = useState(initialValues);
+
+  useEffect(() => {
+    setFormData(initialValues);
+  }, [initialValues]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -34,7 +42,7 @@ export function ApplicationForm({ onSubmit }) {
     >
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-white">
-          Add New Application
+          {submitLabel === "Add Application" ? "Add New Application" : "Edit Application"}
         </h2>
 
         <p className="mt-1 text-sm text-slate-400">
@@ -113,7 +121,7 @@ export function ApplicationForm({ onSubmit }) {
         type="submit"
         className="mt-6 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-500"
       >
-        Add Application
+        {submitLabel}
       </button>
     </form>
   );
