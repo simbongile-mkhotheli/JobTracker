@@ -33,9 +33,20 @@ export function useApplications() {
     );
   }
 
+  function updateApplication(updatedApplication) {
+    setApplications((currentApplications) =>
+      currentApplications.map((application) =>
+        application.id === updatedApplication.id
+          ? updatedApplication
+          : application,
+      ),
+    );
+  }
+
   return {
     applications,
     addApplication,
     deleteApplication,
+    updateApplication,
   };
 }
