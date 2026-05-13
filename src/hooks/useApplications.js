@@ -4,7 +4,8 @@ import { applicationService } from "../services/applicationService";
 
 export function useApplications() {
   const [applications, setApplications] = useState(() => {
-    const storedApplications = applicationService.getApplications();
+    const storedApplications =
+      applicationService.getApplications();
 
     return storedApplications.length > 0
       ? storedApplications
@@ -12,7 +13,8 @@ export function useApplications() {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] =
+    useState("All");
 
   useEffect(() => {
     applicationService.saveApplications(applications);
@@ -66,6 +68,32 @@ export function useApplications() {
     });
   }, [applications, searchTerm, statusFilter]);
 
+  const stats = useMemo(() => {
+    const total = filteredApplications.length;
+
+    const interviews = filteredApplications.filter(
+      (application) =>
+        application.status === "Interview",
+    ).length;
+
+    const offers = filteredApplications.filter(
+      (application) =>
+        application.status === "Offer",
+    ).length;
+
+    const rejected = filteredApplications.filter(
+      (application) =>
+        application.status === "Rejected",
+    ).length;
+
+    return {
+      total,
+      interviews,
+      offers,
+      rejected,
+    };
+  }, [filteredApplications]);
+
   return {
     applications: filteredApplications,
     addApplication,
@@ -75,5 +103,6 @@ export function useApplications() {
     setSearchTerm,
     statusFilter,
     setStatusFilter,
+    stats,
   };
 }

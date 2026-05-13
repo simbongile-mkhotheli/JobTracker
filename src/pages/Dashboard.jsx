@@ -3,6 +3,7 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
 import { ApplicationForm } from "../components/ApplicationForm";
 import { SearchBar } from "../components/SearchBar";
+import { StatsCards } from "../components/StatsCards";
 import { useApplications } from "../hooks/useApplications";
 
 export default function Dashboard() {
@@ -18,6 +19,7 @@ export default function Dashboard() {
     setSearchTerm,
     statusFilter,
     setStatusFilter,
+    stats,
   } = useApplications();
 
   function handleSubmit(applicationData) {
@@ -36,6 +38,8 @@ export default function Dashboard() {
   }
 
   return (
+
+    
     <DashboardLayout>
       <ApplicationForm
         onSubmit={handleSubmit}
@@ -54,7 +58,11 @@ export default function Dashboard() {
         setStatusFilter={setStatusFilter}
       />
 
-      <section>
+      <div className="mt-6">
+        <StatsCards stats={stats} />
+      </div>
+
+      <section className="mt-8">
         <div className="mb-6">
           <h2 className="text-2xl font-semibold text-white">
             Recent Applications
