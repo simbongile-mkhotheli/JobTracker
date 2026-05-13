@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { seedApplications } from "../data/seedApplications";
 import { applicationService } from "../services/applicationService";
 
@@ -10,6 +10,9 @@ export function useApplications() {
       ? storedApplications
       : seedApplications;
   });
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
     applicationService.saveApplications(applications);
@@ -29,7 +32,9 @@ export function useApplications() {
 
   function deleteApplication(id) {
     setApplications((currentApplications) =>
-      currentApplications.filter((application) => application.id !== id),
+      currentApplications.filter(
+        (application) => application.id !== id,
+      ),
     );
   }
 
@@ -43,10 +48,32 @@ export function useApplications() {
     );
   }
 
+  const filteredApplications = useMemo(() => {
+    return applications.filter((application) => {
+      const matchesSearch =
+        application.company
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        application.role
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === "All" ||
+        application.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [applications, searchTerm, statusFilter]);
+
   return {
-    applications,
+    applications: filteredApplications,
     addApplication,
     deleteApplication,
     updateApplication,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
   };
 }
