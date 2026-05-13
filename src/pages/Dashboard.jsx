@@ -2,13 +2,23 @@ import { useState } from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
 import { ApplicationForm } from "../components/ApplicationForm";
+import { SearchBar } from "../components/SearchBar";
 import { useApplications } from "../hooks/useApplications";
 
 export default function Dashboard() {
-  const { applications, addApplication, deleteApplication, updateApplication } =
-    useApplications();
+  const [editingApplication, setEditingApplication] =
+    useState(null);
 
-  const [editingApplication, setEditingApplication] = useState(null);
+  const {
+    applications,
+    addApplication,
+    deleteApplication,
+    updateApplication,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+  } = useApplications();
 
   function handleSubmit(applicationData) {
     if (editingApplication) {
@@ -30,7 +40,18 @@ export default function Dashboard() {
       <ApplicationForm
         onSubmit={handleSubmit}
         initialValues={editingApplication || undefined}
-        submitLabel={editingApplication ? "Save Changes" : "Add Application"}
+        submitLabel={
+          editingApplication
+            ? "Save Changes"
+            : "Add Application"
+        }
+      />
+
+      <SearchBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
       />
 
       <section>
