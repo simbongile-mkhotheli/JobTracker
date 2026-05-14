@@ -1,45 +1,29 @@
+// components/ApplicationCard.jsx
+
+import { Calendar, PencilLine, Trash2 } from "lucide-react";
+
 import {
-  Calendar,
-  PencilLine,
-  Trash2,
-} from "lucide-react";
+  formatDate,
+  getInitials,
+  getLogoSrc,
+} from "../utils/applicationHelpers";
 
 const STATUS_STYLES = {
-  Applied:
-    "bg-sky-500/15 text-sky-300 border-sky-500/20",
+  Applied: "bg-sky-500/15 text-sky-300 border-sky-500/20",
 
-  Interview:
-    "bg-amber-500/15 text-amber-300 border-amber-500/20",
+  Interview: "bg-amber-500/15 text-amber-300 border-amber-500/20",
 
-  Rejected:
-    "bg-rose-500/15 text-rose-300 border-rose-500/20",
+  Rejected: "bg-rose-500/15 text-rose-300 border-rose-500/20",
 
-  Offer:
-    "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
+  Offer: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
 };
 
-function formatDate(date) {
-  return new Date(date).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    },
-  );
-}
+export function ApplicationCard({ application, onDelete, onEdit }) {
+  const { id, company, role, status, dateApplied } = application;
 
-export function ApplicationCard({
-  application,
-  onDelete,
-  onEdit,
-}) {
-  const {
-    company,
-    role,
-    status,
-    dateApplied,
-  } = application;
+  const logoSrc = getLogoSrc(application);
+
+  const initials = getInitials(company);
 
   return (
     <article
@@ -67,26 +51,50 @@ export function ApplicationCard({
 
       <div className="pointer-events-none absolute inset-px rounded-[17px] border border-white/5" />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex h-full flex-col">
         <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h3 className="truncate text-[17px] font-semibold text-white">
-              {company}
-            </h3>
+          <div className="flex min-w-0 items-start gap-4">
+            <div
+              className="
+                flex h-11 w-11 shrink-0
+                items-center justify-center
+                overflow-hidden rounded-[14px]
+                border border-white/10
+                bg-white/5
+                text-sm font-semibold text-slate-200
+              "
+            >
+              {logoSrc ? (
+                <img
+                  src={logoSrc}
+                  alt={`${company} logo`}
+                  className="h-full w-full object-cover"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                initials
+              )}
+            </div>
 
-            <p className="mt-1 truncate text-[14px] text-slate-400">
-              {role}
-            </p>
+            <div className="min-w-0">
+              <h3 className="truncate text-[17px] font-semibold text-white">
+                {company}
+              </h3>
 
-            <div className="mt-3">
-              <span
-                className={[
-                  "inline-flex rounded-full border px-3 py-1 text-[12px] font-medium",
-                  STATUS_STYLES[status],
-                ].join(" ")}
-              >
-                {status}
-              </span>
+              <p className="mt-1 truncate text-[14px] text-slate-400">{role}</p>
+
+              <div className="mt-3">
+                <span
+                  className={[
+                    "inline-flex rounded-full border px-3 py-1 text-[12px] font-medium",
+                    STATUS_STYLES[status],
+                  ].join(" ")}
+                >
+                  {status}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -111,9 +119,7 @@ export function ApplicationCard({
 
             <button
               type="button"
-              onClick={() =>
-                onDelete(application.id)
-              }
+              onClick={() => onDelete(id)}
               aria-label={`Delete ${company}`}
               className="
                 grid h-9 w-9 place-items-center
@@ -131,13 +137,12 @@ export function ApplicationCard({
           </div>
         </div>
 
-        <div className="mt-6 flex items-center gap-2 text-[13px] text-slate-400">
-          <Calendar
-            size={15}
-            className="text-slate-500"
-          />
+        <div className="mt-auto pt-6">
+          <div className="flex items-center gap-2 text-[13px] text-slate-400">
+            <Calendar size={15} className="text-slate-500" />
 
-          <span>{formatDate(dateApplied)}</span>
+            <span>{formatDate(dateApplied)}</span>
+          </div>
         </div>
       </div>
     </article>

@@ -1,28 +1,54 @@
-import { useEffect, useState } from "react";
+// components/ApplicationForm.jsx
+import { useMemo, useState } from "react";
 
-const INITIAL_FORM = {
-  company: "",
-  role: "",
-  status: "Applied",
-  dateApplied: "",
-};
+import { INITIAL_APPLICATION } from "../constants/application";
+
+import {
+  normalizeWebsite,
+  domainToCompanyName,
+  getFaviconUrl,
+} from "../utils/applicationHelpers";
+
+const INPUT_STYLE =
+  "w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500";
 
 export function ApplicationForm({
   onSubmit,
-  initialValues = INITIAL_FORM,
+  initialValues = INITIAL_APPLICATION,
   submitLabel = "Add Application",
 }) {
-  const [formData, setFormData] = useState(initialValues);
+  const [formData, setFormData] = useState({
+    ...INITIAL_APPLICATION,
+    ...initialValues,
+  });
 
-  useEffect(() => {
-    setFormData(initialValues);
-  }, [initialValues]);
+  const normalizedDomain = useMemo(
+    () => normalizeWebsite(formData.website),
+    [formData.website],
+  );
 
   function handleChange(event) {
     const { name, value } = event.target;
 
-    setFormData((currentFormData) => ({
-      ...currentFormData,
+    if (name === "website") {
+      const domain = normalizeWebsite(value);
+
+      setFormData((current) => ({
+        ...current,
+        website: value,
+
+        company: current.company
+          ? current.company
+          : domainToCompanyName(domain),
+
+        logoUrl: getFaviconUrl(domain),
+      }));
+
+      return;
+    }
+
+    setFormData((current) => ({
+      ...current,
       [name]: value,
     }));
   }
@@ -30,27 +56,38 @@ export function ApplicationForm({
   function handleSubmit(event) {
     event.preventDefault();
 
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+      website: normalizeWebsite(formData.website),
+    });
 
-    setFormData(INITIAL_FORM);
+    setFormData(INITIAL_APPLICATION);
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6"
-    >
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white">
-          {submitLabel === "Add Application" ? "Add New Application" : "Edit Application"}
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-400">
-          Track your latest job opportunity.
-        </p>
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <label className="mb-2 block text-sm text-slate-300">
+            Company Website
+          </label>
+
+          <input
+            type="text"
+            name="website"
+            value={formData.website}
+            onChange={handleChange}
+            placeholder="chatgpt.com"
+            className={INPUT_STYLE}
+          />
+
+          {normalizedDomain ? (
+            <p className="mt-2 text-xs text-slate-500">
+              Detected domain: {normalizedDomain}
+            </p>
+          ) : null}
+        </div>
+
         <div>
           <label className="mb-2 block text-sm text-slate-300">
             Company
@@ -61,9 +98,9 @@ export function ApplicationForm({
             name="company"
             value={formData.company}
             onChange={handleChange}
-            placeholder="Google"
+            placeholder="OpenAI"
             required
-            className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+            className={INPUT_STYLE}
           />
         </div>
 
@@ -79,7 +116,7 @@ export function ApplicationForm({
             onChange={handleChange}
             placeholder="Frontend Developer"
             required
-            className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+            className={INPUT_STYLE}
           />
         </div>
 
@@ -92,7 +129,7 @@ export function ApplicationForm({
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+            className={INPUT_STYLE}
           >
             <option>Applied</option>
             <option>Interview</option>
@@ -112,14 +149,29 @@ export function ApplicationForm({
             value={formData.dateApplied}
             onChange={handleChange}
             required
-            className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+            className={INPUT_STYLE}
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="mb-2 block text-sm text-slate-300">
+            Notes
+          </label>
+
+          <textarea
+            name="notes"
+            value={formData.notes}
+            onChange={handleChange}
+            rows={4}
+            placeholder="Optional notes..."
+            className={`${INPUT_STYLE} resize-none`}
           />
         </div>
       </div>
 
       <button
         type="submit"
-        className="mt-6 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-500"
+        className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-500"
       >
         {submitLabel}
       </button>
