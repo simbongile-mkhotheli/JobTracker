@@ -1,70 +1,145 @@
-import { Calendar, PencilLine, Trash2 } from "lucide-react";
+import {
+  Calendar,
+  PencilLine,
+  Trash2,
+} from "lucide-react";
 
 const STATUS_STYLES = {
-  Applied: "bg-sky-500/15 text-sky-300 border-sky-500/20",
-  Interview: "bg-amber-500/15 text-amber-300 border-amber-500/20",
-  Rejected: "bg-rose-500/15 text-rose-300 border-rose-500/20",
-  Offer: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
+  Applied:
+    "bg-sky-500/15 text-sky-300 border-sky-500/20",
+
+  Interview:
+    "bg-amber-500/15 text-amber-300 border-amber-500/20",
+
+  Rejected:
+    "bg-rose-500/15 text-rose-300 border-rose-500/20",
+
+  Offer:
+    "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
 };
 
 function formatDate(date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return new Date(date).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  );
 }
 
-export function ApplicationCard({ application, onDelete, onEdit }) {
-  const { company, role, status, dateApplied } = application;
+export function ApplicationCard({
+  application,
+  onDelete,
+  onEdit,
+}) {
+  const {
+    company,
+    role,
+    status,
+    dateApplied,
+  } = application;
 
   return (
-    <article className="rounded-[18px] border border-[#243255] bg-[linear-gradient(180deg,#0f1930_0%,#0b1426_100%)] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.22)]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-[17px] font-semibold text-white">
-            {company}
-          </h3>
+    <article
+      className="
+        group relative overflow-hidden
+        rounded-[18px]
+        border border-[#243255]
+        bg-[linear-gradient(180deg,#0f1930_0%,#0b1426_100%)]
+        p-5
+        shadow-[0_10px_30px_rgba(0,0,0,0.22)]
+        transition-all duration-300 ease-out
+        hover:-translate-y-1
+        hover:border-[#4f63a7]
+        hover:shadow-[0_22px_50px_rgba(0,0,0,0.32)]
+      "
+    >
+      <div
+        className="
+          pointer-events-none absolute inset-0
+          bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.10),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.05),transparent_38%)]
+          opacity-80 transition-opacity duration-300
+          group-hover:opacity-100
+        "
+      />
 
-          <p className="mt-1 text-[14px] text-slate-400">
-            {role}
-          </p>
+      <div className="pointer-events-none absolute inset-px rounded-[17px] border border-white/5" />
 
-          <div className="mt-3">
-            <span
-              className={[
-                "inline-flex rounded-full border px-3 py-1 text-[12px] font-medium",
-                STATUS_STYLES[status],
-              ].join(" ")}
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className="truncate text-[17px] font-semibold text-white">
+              {company}
+            </h3>
+
+            <p className="mt-1 truncate text-[14px] text-slate-400">
+              {role}
+            </p>
+
+            <div className="mt-3">
+              <span
+                className={[
+                  "inline-flex rounded-full border px-3 py-1 text-[12px] font-medium",
+                  STATUS_STYLES[status],
+                ].join(" ")}
+              >
+                {status}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onEdit(application)}
+              aria-label={`Edit ${company}`}
+              className="
+                grid h-9 w-9 place-items-center
+                rounded-[12px]
+                border border-white/10
+                bg-white/5 text-slate-300
+                transition duration-200
+                hover:border-sky-400/30
+                hover:bg-sky-500/10
+                hover:text-sky-300
+              "
             >
-              {status}
-            </span>
+              <PencilLine size={16} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                onDelete(application.id)
+              }
+              aria-label={`Delete ${company}`}
+              className="
+                grid h-9 w-9 place-items-center
+                rounded-[12px]
+                border border-white/10
+                bg-white/5 text-slate-300
+                transition duration-200
+                hover:border-rose-400/30
+                hover:bg-rose-500/10
+                hover:text-rose-300
+              "
+            >
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
+
+        <div className="mt-6 flex items-center gap-2 text-[13px] text-slate-400">
+          <Calendar
+            size={15}
+            className="text-slate-500"
+          />
+
+          <span>{formatDate(dateApplied)}</span>
+        </div>
       </div>
-
-      <div className="mt-5 flex items-center gap-2 text-[13px] text-slate-400">
-        <Calendar size={15} />
-        <span>{formatDate(dateApplied)}</span>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => onEdit(application)}
-        className="mt-4 mr-3 inline-flex items-center rounded-lg border border-sky-500/20 bg-sky-500/10 px-3 py-2 text-sm text-sky-300 transition hover:bg-sky-500/20"
-      >
-        <PencilLine size={14} className="mr-2" />
-        Edit
-      </button>
-
-      <button
-        type="button"
-        onClick={() => onDelete(application.id)}
-        className="mt-4 inline-flex items-center rounded-lg border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-sm text-rose-300 transition hover:bg-rose-500/20"
-      >
-        <Trash2 size={14} className="mr-2" />
-        Remove
-      </button>
     </article>
   );
 }
