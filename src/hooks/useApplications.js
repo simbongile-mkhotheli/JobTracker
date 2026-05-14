@@ -4,8 +4,7 @@ import { applicationService } from "../services/applicationService";
 
 export function useApplications() {
   const [applications, setApplications] = useState(() => {
-    const storedApplications =
-      applicationService.getApplications();
+    const storedApplications = applicationService.getApplications();
 
     return storedApplications.length > 0
       ? storedApplications
@@ -13,8 +12,7 @@ export function useApplications() {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] =
-    useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
     applicationService.saveApplications(applications);
@@ -34,9 +32,7 @@ export function useApplications() {
 
   function deleteApplication(id) {
     setApplications((currentApplications) =>
-      currentApplications.filter(
-        (application) => application.id !== id,
-      ),
+      currentApplications.filter((application) => application.id !== id),
     );
   }
 
@@ -53,16 +49,11 @@ export function useApplications() {
   const filteredApplications = useMemo(() => {
     return applications.filter((application) => {
       const matchesSearch =
-        application.company
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        application.role
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+        application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        application.role.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus =
-        statusFilter === "All" ||
-        application.status === statusFilter;
+        statusFilter === "All" || application.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     });
@@ -72,18 +63,15 @@ export function useApplications() {
     const total = filteredApplications.length;
 
     const interviews = filteredApplications.filter(
-      (application) =>
-        application.status === "Interview",
+      (application) => application.status === "Interview",
     ).length;
 
     const offers = filteredApplications.filter(
-      (application) =>
-        application.status === "Offer",
+      (application) => application.status === "Offer",
     ).length;
 
     const rejected = filteredApplications.filter(
-      (application) =>
-        application.status === "Rejected",
+      (application) => application.status === "Rejected",
     ).length;
 
     return {
