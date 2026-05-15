@@ -2,21 +2,13 @@
 
 import { Calendar, PencilLine, Trash2 } from "lucide-react";
 
+import { STATUS_STYLES } from "../constants";
+
 import {
   formatDate,
   getInitials,
   getLogoSrc,
 } from "../utils/applicationHelpers";
-
-const STATUS_STYLES = {
-  Applied: "bg-sky-500/15 text-sky-300 border-sky-500/20",
-
-  Interview: "bg-amber-500/15 text-amber-300 border-amber-500/20",
-
-  Rejected: "bg-rose-500/15 text-rose-300 border-rose-500/20",
-
-  Offer: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
-};
 
 export function ApplicationCard({ application, onDelete, onEdit }) {
   const { id, company, role, status, dateApplied } = application;
