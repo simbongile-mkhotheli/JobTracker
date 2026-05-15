@@ -1,83 +1,81 @@
-# Jobtracker
+# JobTracker
 
-Jobtracker is a frontend job application tracking dashboard built with React and Tailwind CSS.
+A clean, maintainable job application tracking dashboard that demonstrates practical React engineering and real-world frontend architecture patterns.
 
-The project focuses on reusable UI architecture, incremental feature development, and realistic frontend engineering workflows.
+**[Live Demo](https://job-tracker-seven-self.vercel.app)** | **[Getting Started](#getting-started)**
 
-## Live Demo
-🌐 Live Application: https://job-tracker-seven-self.vercel.app
+## Why This Project?
 
-## Features
-- Dashboard layout
-- Reusable application cards
-- Add new applications
-- Edit existing applications
-- Remove applications
-- Local React state management
-- Local storage persistence
-- Responsive interface
-- Component-based architecture
+JobTracker showcases:
+
+- **Clean architecture** with clear separation of concerns (components, hooks, services)
+- **Scalable patterns** using custom hooks, service layer abstraction, and reusable UI components
+- **Professional workflows** with structured Git conventions and incremental development
+- **Practical engineering** prioritizing maintainability and real-world best practices over unnecessary complexity
+
+## Core Features
+
+- ✅ Full CRUD workflows for job applications
+- ✅ Modal-based application management
+- ✅ Company metadata support via website detection
+- ✅ Automatic favicon/logo previews
+- ✅ Search and status filtering
+- ✅ Persistent local storage state
+- ✅ Responsive dashboard UI
+- ✅ Reusable component architecture
 
 ## Tech Stack
-- React
-- Vite
-- JavaScript
-- Tailwind CSS
-- Lucide React
-- Local Storage API
+
+**Framework**: React | **Build Tool**: Vite | **Styling**: Tailwind CSS | **Icons**: Lucide React | **Persistence**: Local Storage API
 
 ## Getting Started
-1. Clone the repository
-   ```
-   git clone https://github.com/simbongile-mkhotheli/JobTracker.git
-   ```
-2. Navigate into the project
-   ```
-   cd JobTracker
-   ```
-3. Install dependencies
-   ```
-   npm install
-   ```
-4. Start the development server
-   ```
-   npm run dev
-   ```
 
-## Project Structure
+```bash
+# Clone and setup
+git clone https://github.com/simbongile-mkhotheli/JobTracker.git
+cd JobTracker
+npm install
+
+# Start development server
+npm run dev
+```
+
+Visit `http://localhost:5173` to see it in action.
+
+## Architecture
+
 ```
 src/
-├── assets/
-├── components/
-├── data/
-├── hooks/
-├── layouts/
-├── pages/
-├── services/
+├── App.jsx              # Root component
+├── main.jsx             # Entry point
+├── components/          # Reusable UI components
+├── pages/               # Page-level components
+├── hooks/               # Custom React hooks (state logic)
+├── services/            # Business logic & persistence
+├── constants/           # Shared configuration
+├── utils/               # Helper functions
+├── layouts/             # Layout wrappers
+├── data/                # Seed data
+└── index.css            # Global styles
 ```
 
-## Current Architecture
+**Key patterns**:
 
-The project currently follows a frontend-focused architecture with:
-- Reusable UI components
-- Custom React hooks for state management
-- Service layer abstraction for persistence
-- Seeded application data for initial state
-- Incremental feature-driven development
+- Custom hooks (`useApplications`) encapsulate state management
+- Service layer handles all data persistence
+- Components stay focused on rendering and user interaction
+- Constants centralized for easy maintenance
 
-## Development Workflow
+## Contributing
 
-This repository follows a structured GitHub workflow:
-- Feature branches
-- Pull requests
-- Scoped issues
-- Incremental commits
-- Refactor-focused updates
+We follow structured Git workflows focused on maintainability:
 
-## Future Development
+- **Branches**: `feature/*`, `fix/*`, `refactor/*` — descriptive and focused
+- **Commits**: Conventional format (`feat:`, `fix:`, `refactor:`, `chore:`)
+- **PRs**: Single concern, clear summary, linked issues
 
-Additional improvements and planned features are tracked through GitHub Issues and project boards.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License
