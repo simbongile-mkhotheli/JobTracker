@@ -1,16 +1,13 @@
 // components/ApplicationForm.jsx
 import { useMemo, useState } from "react";
 
-import { INITIAL_APPLICATION } from "../constants/application";
+import { INITIAL_APPLICATION, STATUS_OPTIONS, INPUT_STYLE } from "../constants";
 
 import {
   normalizeWebsite,
   domainToCompanyName,
   getFaviconUrl,
 } from "../utils/applicationHelpers";
-
-const INPUT_STYLE =
-  "w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500";
 
 export function ApplicationForm({
   onSubmit,
@@ -131,10 +128,9 @@ export function ApplicationForm({
             onChange={handleChange}
             className={INPUT_STYLE}
           >
-            <option>Applied</option>
-            <option>Interview</option>
-            <option>Offer</option>
-            <option>Rejected</option>
+            {STATUS_OPTIONS.map((status) => (
+              <option key={status}>{status}</option>
+            ))}
           </select>
         </div>
 
