@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+
 import { seedApplications } from "../data/seedApplications";
+
 import { applicationService } from "../services/applicationService";
 
 export function useApplications() {
   const [applications, setApplications] = useState(() => {
-    const storedApplications = applicationService.getApplications();
+    const storedApplications = applicationService.getAllApplications();
 
     return storedApplications.length > 0
       ? storedApplications
@@ -12,36 +14,26 @@ export function useApplications() {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
+
   const [statusFilter, setStatusFilter] = useState("All");
 
-  useEffect(() => {
-    applicationService.saveApplications(applications);
-  }, [applications]);
-
   function addApplication(application) {
-    const newApplication = {
-      ...application,
-      id: Date.now(),
-    };
-
-    setApplications((currentApplications) => [
-      ...currentApplications,
-      newApplication,
-    ]);
+    setApplications((currentApplications) =>
+      applicationService.createApplication(currentApplications, application),
+    );
   }
 
   function deleteApplication(id) {
     setApplications((currentApplications) =>
-      currentApplications.filter((application) => application.id !== id),
+      applicationService.deleteApplication(currentApplications, id),
     );
   }
 
   function updateApplication(updatedApplication) {
     setApplications((currentApplications) =>
-      currentApplications.map((application) =>
-        application.id === updatedApplication.id
-          ? updatedApplication
-          : application,
+      applicationService.updateApplication(
+        currentApplications,
+        updatedApplication,
       ),
     );
   }
@@ -84,13 +76,19 @@ export function useApplications() {
 
   return {
     applications: filteredApplications,
+
     addApplication,
+
     deleteApplication,
+
     updateApplication,
+
     searchTerm,
     setSearchTerm,
+
     statusFilter,
     setStatusFilter,
+
     stats,
   };
 }
