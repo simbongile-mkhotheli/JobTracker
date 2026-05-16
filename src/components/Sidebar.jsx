@@ -83,10 +83,10 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed bottom-0 left-0 top-0 z-40 flex w-[286px] flex-col border-r border-white/10
+          fixed inset-y-0 left-0 z-40 flex w-[286px] flex-col border-r border-white/10
           bg-[linear-gradient(180deg,#0c1324_0%,#0a1120_100%)] px-6 py-6 text-white
           shadow-[10px_0_30px_rgba(0,0,0,0.18)] transition-transform duration-300
-          ease-out lg:static lg:translate-x-0
+          ease-out lg:translate-x-0
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
