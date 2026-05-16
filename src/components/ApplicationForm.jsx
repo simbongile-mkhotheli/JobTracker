@@ -65,16 +65,21 @@ export function ApplicationForm({
     <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
       <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label className="mb-2 block text-sm text-slate-300">
+          <label
+            htmlFor="website"
+            className="mb-2 block text-sm text-slate-300"
+          >
             Company Website
           </label>
 
           <input
+            id="website"
             type="text"
             name="website"
             value={formData.website}
             onChange={handleChange}
-            placeholder="chatgpt.com"
+            placeholder="google.com"
+            autoComplete="url"
             className={INPUT_STYLE}
           />
 
@@ -86,43 +91,51 @@ export function ApplicationForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-slate-300">
+          <label
+            htmlFor="company"
+            className="mb-2 block text-sm text-slate-300"
+          >
             Company
           </label>
 
           <input
+            id="company"
             type="text"
             name="company"
             value={formData.company}
             onChange={handleChange}
-            placeholder="OpenAI"
+            placeholder="Google"
+            autoComplete="organization"
             required
             className={INPUT_STYLE}
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-slate-300">
+          <label htmlFor="role" className="mb-2 block text-sm text-slate-300">
             Role
           </label>
 
           <input
+            id="role"
             type="text"
             name="role"
             value={formData.role}
             onChange={handleChange}
             placeholder="Frontend Developer"
+            autoComplete="organization-title"
             required
             className={INPUT_STYLE}
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-slate-300">
+          <label htmlFor="status" className="mb-2 block text-sm text-slate-300">
             Status
           </label>
 
           <select
+            id="status"
             name="status"
             value={formData.status}
             onChange={handleChange}
@@ -135,11 +148,15 @@ export function ApplicationForm({
         </div>
 
         <div>
-          <label className="mb-2 block text-sm text-slate-300">
+          <label
+            htmlFor="dateApplied"
+            className="mb-2 block text-sm text-slate-300"
+          >
             Date Applied
           </label>
 
           <input
+            id="dateApplied"
             type="date"
             name="dateApplied"
             value={formData.dateApplied}
@@ -150,11 +167,12 @@ export function ApplicationForm({
         </div>
 
         <div className="md:col-span-2">
-          <label className="mb-2 block text-sm text-slate-300">
+          <label htmlFor="notes" className="mb-2 block text-sm text-slate-300">
             Notes
           </label>
 
           <textarea
+            id="notes"
             name="notes"
             value={formData.notes}
             onChange={handleChange}
