@@ -1,5 +1,6 @@
 // pages/Dashboard.jsx
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
 import { ApplicationModal } from "../components/ApplicationModal";
@@ -30,6 +31,7 @@ export default function Dashboard() {
         ...applicationData,
         id: editingApplication.id,
       });
+      toast.success("Application updated");
 
       setEditingApplication(null);
       setIsFormOpen(false);
@@ -38,6 +40,7 @@ export default function Dashboard() {
     }
 
     addApplication(applicationData);
+    toast.success("Application added");
     setIsFormOpen(false);
   }
 
@@ -49,6 +52,11 @@ export default function Dashboard() {
   function handleCloseModal() {
     setEditingApplication(null);
     setIsFormOpen(false);
+  }
+
+  function handleDelete(id) {
+    deleteApplication(id);
+    toast.success("Application removed");
   }
 
   return (
@@ -107,7 +115,7 @@ export default function Dashboard() {
         <div className="mt-6">
           <ApplicationsGrid
             applications={applications}
-            onDelete={deleteApplication}
+            onDelete={handleDelete}
             onEdit={handleEdit}
           />
         </div>
