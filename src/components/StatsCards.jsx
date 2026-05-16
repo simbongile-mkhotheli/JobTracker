@@ -53,7 +53,7 @@ export function StatsCards({
   trend = {},
 }) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon;
         const value = stats[card.key] ?? 0;
@@ -69,8 +69,8 @@ export function StatsCards({
           <article
             key={card.key}
             className={[
-              "group relative overflow-hidden rounded-[18px] border",
-              "bg-[linear-gradient(180deg,#0f1930_0%,#0b1426_100%)] p-5",
+              "group relative overflow-hidden rounded-lg sm:rounded-[18px] border",
+              "bg-[linear-gradient(180deg,#0f1930_0%,#0b1426_100%)] p-3 sm:p-5",
               "shadow-[0_10px_30px_rgba(0,0,0,0.22)]",
               "transition-all duration-300 ease-out",
               "hover:-translate-y-1 hover:border-[#4f63a7] hover:shadow-[0_22px_50px_rgba(0,0,0,0.32)]",
@@ -85,28 +85,28 @@ export function StatsCards({
               ].join(" ")}
             />
 
-            <div className="pointer-events-none absolute inset-px rounded-[17px] border border-white/5" />
+            <div className="pointer-events-none absolute inset-px rounded-md sm:rounded-[17px] border border-white/5" />
 
-            <div className="relative z-10 flex items-start gap-4">
+            <div className="relative z-10 flex items-start gap-3">
               <div
                 className={[
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] border",
+                  "flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg sm:rounded-[14px] border",
                   "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
                   "transition duration-300 group-hover:scale-[1.03]",
                   card.badgeClass,
                 ].join(" ")}
               >
-                <Icon size={22} strokeWidth={2} />
+                <Icon size={18} strokeWidth={2} className="sm:h-[22px] sm:w-[22px]" />
               </div>
 
               <div className="min-w-0">
-                <p className="text-[15px] font-medium leading-6 text-slate-300">
+                <p className="text-xs sm:text-[15px] font-medium leading-5 sm:leading-6 text-slate-300">
                   {card.label}
                 </p>
 
                 <p
                   className={[
-                    "mt-1 text-[38px] font-semibold leading-none tracking-[-0.05em]",
+                    "mt-0.5 sm:mt-1 text-2xl sm:text-[38px] font-semibold leading-none tracking-[-0.05em]",
                     card.valueClass,
                   ].join(" ")}
                 >
@@ -114,7 +114,7 @@ export function StatsCards({
                 </p>
 
                 {change ? (
-                  <div className="mt-3 flex items-center gap-1 text-[14px] leading-none">
+                  <div className="mt-2 sm:mt-3 flex items-center gap-1 text-xs sm:text-[14px] leading-none">
                     <span className={card.trendClass}>
                       ↗ {change}
                     </span>

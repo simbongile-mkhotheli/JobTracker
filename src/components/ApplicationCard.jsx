@@ -44,16 +44,17 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
       <div className="pointer-events-none absolute inset-px rounded-[17px] border border-white/5" />
 
       <div className="relative z-10 flex h-full flex-col">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
             <div
               className="
-                flex h-11 w-11 shrink-0
+                flex h-10 w-10 shrink-0
                 items-center justify-center
-                overflow-hidden rounded-[14px]
+                overflow-hidden rounded-[12px]
                 border border-white/10
                 bg-white/5
-                text-sm font-semibold text-slate-200
+                text-xs font-semibold text-slate-200
+                sm:h-11 sm:w-11 sm:text-sm
               "
             >
               {logoSrc ? (
@@ -71,16 +72,16 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
             </div>
 
             <div className="min-w-0">
-              <h3 className="truncate text-[17px] font-semibold text-white">
+              <h3 className="truncate text-base font-semibold text-white sm:text-[17px]">
                 {company}
               </h3>
 
-              <p className="mt-1 truncate text-[14px] text-slate-400">{role}</p>
+              <p className="mt-0.5 truncate text-xs text-slate-400 sm:mt-1 sm:text-[14px]">{role}</p>
 
-              <div className="mt-3">
+              <div className="mt-2 sm:mt-3">
                 <span
                   className={[
-                    "inline-flex rounded-full border px-3 py-1 text-[12px] font-medium",
+                    "inline-flex rounded-full border px-2 py-0.5 text-xs font-medium sm:px-3 sm:py-1 sm:text-[12px]",
                     STATUS_STYLES[status],
                   ].join(" ")}
                 >
@@ -90,14 +91,14 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 sm:gap-3">
             <button
               type="button"
               onClick={() => onEdit(application)}
               aria-label={`Edit ${company}`}
               className="
-                grid h-9 w-9 place-items-center
-                rounded-[12px]
+                grid h-10 w-10 sm:h-11 sm:w-11 place-items-center
+                rounded-lg sm:rounded-[12px]
                 border border-white/10
                 bg-white/5 text-slate-300
                 transition duration-200
@@ -114,8 +115,8 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
               onClick={() => onDelete(id)}
               aria-label={`Delete ${company}`}
               className="
-                grid h-9 w-9 place-items-center
-                rounded-[12px]
+                grid h-10 w-10 sm:h-11 sm:w-11 place-items-center
+                rounded-lg sm:rounded-[12px]
                 border border-white/10
                 bg-white/5 text-slate-300
                 transition duration-200
@@ -129,9 +130,9 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
           </div>
         </div>
 
-        <div className="mt-auto pt-6">
-          <div className="flex items-center gap-2 text-[13px] text-slate-400">
-            <Calendar size={15} className="text-slate-500" />
+        <div className="mt-auto pt-4 sm:pt-6">
+          <div className="flex items-center gap-2 text-xs text-slate-400 sm:text-[13px]">
+            <Calendar size={14} className="text-slate-500 sm:h-[15px] sm:w-[15px]" />
 
             <span>{formatDate(dateApplied)}</span>
           </div>
