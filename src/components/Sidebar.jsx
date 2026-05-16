@@ -1,12 +1,15 @@
+
 import {
   BarChart3,
   CalendarDays,
   ChevronRight,
   Home,
   LayoutGrid,
+  Menu,
   Settings,
   Sparkles,
   UserCircle2,
+  X,
 } from "lucide-react";
 
 const navItems = [
@@ -55,9 +58,38 @@ function NavItem({ icon: Icon, label, active = false }) {
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ isOpen = true, onToggle = () => {} }) {
   return (
-    <aside className="flex h-screen w-[286px] shrink-0 flex-col border-r border-white/10 bg-[linear-gradient(180deg,#0c1324_0%,#0a1120_100%)] px-6 py-6 text-white shadow-[10px_0_30px_rgba(0,0,0,0.18)]">
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label="Toggle menu"
+        className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center rounded-lg sm:rounded-[10px] border border-white/10 bg-white/5 text-slate-300 transition duration-200 hover:bg-white/10 md:hidden"
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={onToggle}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed bottom-0 left-0 top-0 z-40 flex w-[286px] flex-col border-r border-white/10
+          bg-[linear-gradient(180deg,#0c1324_0%,#0a1120_100%)] px-6 py-6 text-white
+          shadow-[10px_0_30px_rgba(0,0,0,0.18)] transition-transform duration-300
+          ease-out lg:static lg:translate-x-0
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
       <div className="mb-8">
         <div className="flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-[16px] border border-cyan-400/20 bg-[linear-gradient(180deg,rgba(34,211,238,0.18),rgba(99,102,241,0.12))] shadow-[0_12px_24px_rgba(0,0,0,0.18)]">
@@ -112,5 +144,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

@@ -62,8 +62,8 @@ export function ApplicationForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm text-slate-300">
             Company Website
@@ -165,12 +165,14 @@ export function ApplicationForm({
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-500"
-      >
-        {submitLabel}
-      </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="submit"
+          className="h-11 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 active:scale-95 sm:w-auto"
+        >
+          {submitLabel}
+        </button>
+      </div>
     </form>
   );
 }
