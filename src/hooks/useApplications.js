@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { seedApplications } from "../data/seedApplications";
 
 import { applicationService } from "../services/applicationService";
+import { filterApplications } from "../utils/filterApplications";
+import { calculateApplicationStats } from "../utils/calculateApplicationStats";
 
 export function useApplications() {
   const [applications, setApplications] = useState(() => {
@@ -39,39 +41,11 @@ export function useApplications() {
   }
 
   const filteredApplications = useMemo(() => {
-    return applications.filter((application) => {
-      const matchesSearch =
-        application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        application.role.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === "All" || application.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
+    return filterApplications(applications, searchTerm, statusFilter);
   }, [applications, searchTerm, statusFilter]);
 
   const stats = useMemo(() => {
-    const total = filteredApplications.length;
-
-    const interviews = filteredApplications.filter(
-      (application) => application.status === "Interview",
-    ).length;
-
-    const offers = filteredApplications.filter(
-      (application) => application.status === "Offer",
-    ).length;
-
-    const rejected = filteredApplications.filter(
-      (application) => application.status === "Rejected",
-    ).length;
-
-    return {
-      total,
-      interviews,
-      offers,
-      rejected,
-    };
+    return calculateApplicationStats(filteredApplications);
   }, [filteredApplications]);
 
   return {
