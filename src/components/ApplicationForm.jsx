@@ -19,6 +19,10 @@ export function ApplicationForm({
     ...initialValues,
   });
 
+  const [isCompanyEdited, setIsCompanyEdited] = useState(
+    Boolean(initialValues.company),
+  );
+
   const normalizedDomain = useMemo(
     () => normalizeWebsite(formData.website),
     [formData.website],
@@ -27,6 +31,17 @@ export function ApplicationForm({
   function handleChange(event) {
     const { name, value } = event.target;
 
+    if (name === "company") {
+      setIsCompanyEdited(true);
+
+      setFormData((current) => ({
+        ...current,
+        company: value,
+      }));
+
+      return;
+    }
+
     if (name === "website") {
       const domain = normalizeWebsite(value);
 
@@ -34,11 +49,12 @@ export function ApplicationForm({
         ...current,
         website: value,
 
-        company: current.company
-          ? current.company
-          : domainToCompanyName(domain),
+        company:
+          !isCompanyEdited && domain
+            ? domainToCompanyName(domain)
+            : current.company,
 
-        logoUrl: getFaviconUrl(domain),
+        logoUrl: domain ? getFaviconUrl(domain) : "",
       }));
 
       return;
