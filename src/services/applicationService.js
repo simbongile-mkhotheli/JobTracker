@@ -1,22 +1,48 @@
 const STORAGE_KEY = "jobtracker_applications";
 
 function getAllApplications() {
-  const storedApplications =
-    localStorage.getItem(STORAGE_KEY);
+  try {
+    const storedApplications =
+      localStorage.getItem(STORAGE_KEY);
 
-  return storedApplications
-    ? JSON.parse(storedApplications)
-    : [];
+    if (!storedApplications) {
+      return [];
+    }
+
+    const parsedApplications =
+      JSON.parse(storedApplications);
+
+    return Array.isArray(parsedApplications)
+      ? parsedApplications
+      : [];
+  } catch (error) {
+    console.error(
+      "Failed to load applications:",
+      error,
+    );
+
+    return [];
+  }
 }
 
 function saveApplications(applications) {
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(applications),
-  );
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(applications),
+    );
+  } catch (error) {
+    console.error(
+      "Failed to save applications:",
+      error,
+    );
+  }
 }
 
-function createApplication(applications, application) {
+function createApplication(
+  applications,
+  application,
+) {
   const updatedApplications = [
     ...applications,
     {
