@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 
 import { INITIAL_APPLICATION, STATUS_OPTIONS, INPUT_STYLE } from "../constants";
+import { validateApplicationForm } from "../utils/validation";
 
 import {
   normalizeWebsite,
@@ -22,6 +23,8 @@ export function ApplicationForm({
   const [isCompanyEdited, setIsCompanyEdited] = useState(
     Boolean(initialValues.company),
   );
+
+  const [errors, setErrors] = useState({});
 
   const normalizedDomain = useMemo(
     () => normalizeWebsite(formData.website),
@@ -69,12 +72,27 @@ export function ApplicationForm({
   function handleSubmit(event) {
     event.preventDefault();
 
+    const validationErrors = validateApplicationForm({
+      ...formData,
+      normalizedDomain,
+    });
+
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     onSubmit({
       ...formData,
+      company: formData.company.trim(),
+      role: formData.role.trim(),
+      notes: formData.notes.trim(),
       website: normalizeWebsite(formData.website),
     });
 
     setFormData(INITIAL_APPLICATION);
+    setErrors({});
   }
 
   return (
@@ -104,6 +122,10 @@ export function ApplicationForm({
               Detected domain: {normalizedDomain}
             </p>
           ) : null}
+
+          {errors.website ? (
+            <p className="mt-2 text-xs text-rose-400">{errors.website}</p>
+          ) : null}
         </div>
 
         <div>
@@ -122,9 +144,12 @@ export function ApplicationForm({
             onChange={handleChange}
             placeholder="Google"
             autoComplete="organization"
-            required
             className={INPUT_STYLE}
           />
+
+          {errors.company ? (
+            <p className="mt-2 text-xs text-rose-400">{errors.company}</p>
+          ) : null}
         </div>
 
         <div>
@@ -140,9 +165,12 @@ export function ApplicationForm({
             onChange={handleChange}
             placeholder="Frontend Developer"
             autoComplete="organization-title"
-            required
             className={INPUT_STYLE}
           />
+
+          {errors.role ? (
+            <p className="mt-2 text-xs text-rose-400">{errors.role}</p>
+          ) : null}
         </div>
 
         <div>
@@ -177,9 +205,12 @@ export function ApplicationForm({
             name="dateApplied"
             value={formData.dateApplied}
             onChange={handleChange}
-            required
             className={INPUT_STYLE}
           />
+
+          {errors.dateApplied ? (
+            <p className="mt-2 text-xs text-rose-400">{errors.dateApplied}</p>
+          ) : null}
         </div>
 
         <div className="md:col-span-2">
@@ -196,6 +227,10 @@ export function ApplicationForm({
             placeholder="Optional notes..."
             className={`${INPUT_STYLE} resize-none`}
           />
+
+          {errors.notes ? (
+            <p className="mt-2 text-xs text-rose-400">{errors.notes}</p>
+          ) : null}
         </div>
       </div>
 
