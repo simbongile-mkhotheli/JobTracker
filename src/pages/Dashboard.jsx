@@ -25,11 +25,13 @@ export default function Dashboard() {
     statusFilter,
     setStatusFilter,
     stats,
+    isLoading,
+    error,
   } = useApplications();
 
-  function handleSubmit(applicationData) {
+  async function handleSubmit(applicationData) {
     if (editingApplication) {
-      updateApplication({
+      await updateApplication({
         ...applicationData,
         id: editingApplication.id,
       });
@@ -41,7 +43,7 @@ export default function Dashboard() {
       return;
     }
 
-    addApplication(applicationData);
+    await addApplication(applicationData);
     toast.success("Application added");
     setIsFormOpen(false);
   }
@@ -133,6 +135,8 @@ export default function Dashboard() {
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
         editingApplication={editingApplication}
+        isLoading={isLoading}
+        error={error}
       />
 
       <ApplicationNotesModal

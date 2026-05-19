@@ -5,6 +5,8 @@ export function ApplicationModal({
   onClose,
   onSubmit,
   editingApplication,
+  isLoading,
+  error,
 }) {
   if (!isOpen) return null;
 
@@ -61,14 +63,30 @@ export function ApplicationModal({
         </div>
 
         <div className="relative z-10 max-h-[70vh] overflow-y-auto p-4 sm:p-6">
+          {error ? (
+            <div
+              className="
+                mb-4 rounded-xl border
+                border-rose-500/20
+                bg-rose-500/10
+                p-3 text-sm text-rose-300
+              "
+            >
+              {error}
+            </div>
+          ) : null}
+
           <ApplicationForm
             onSubmit={onSubmit}
             initialValues={editingApplication || undefined}
             submitLabel={
-              editingApplication
-                ? "Save Changes"
-                : "Add Application"
+              isLoading
+                ? "Saving..."
+                : editingApplication
+                  ? "Save Changes"
+                  : "Add Application"
             }
+            isLoading={isLoading}
           />
         </div>
       </div>
