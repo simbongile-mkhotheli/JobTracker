@@ -1,6 +1,5 @@
 // components/ApplicationCard.jsx
 
-import { useState } from "react";
 import { Calendar, FileText, PencilLine, Trash2 } from "lucide-react";
 
 import { STATUS_STYLES } from "../constants";
@@ -11,9 +10,13 @@ import {
   getLogoSrc,
 } from "../utils/applicationHelpers";
 
-export function ApplicationCard({ application, onDelete, onEdit }) {
+export function ApplicationCard({
+  application,
+  onDelete,
+  onEdit,
+  onOpenNotes,
+}) {
   const { id, company, role, status, dateApplied, notes } = application;
-  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const logoSrc = getLogoSrc(application);
 
@@ -146,14 +149,14 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
         <div className="mt-4 border-t border-white/10 pt-4">
           <button
             type="button"
-            onClick={() => notes && setIsNotesOpen(!isNotesOpen)}
+            onClick={() => onOpenNotes(application)}
             className={[
               "flex w-full items-center gap-2 text-xs font-medium transition",
               notes
                 ? "text-slate-400 hover:text-slate-300 cursor-pointer"
                 : "text-slate-600 cursor-not-allowed",
             ].join(" ")}
-            aria-expanded={isNotesOpen}
+            aria-expanded={false}
             disabled={!notes}
           >
             <FileText
@@ -161,16 +164,8 @@ export function ApplicationCard({ application, onDelete, onEdit }) {
               className={notes ? "text-slate-500" : "text-slate-700"}
             />
             <span>Notes</span>
-            <span className="ml-auto text-[10px]">
-              {notes ? (isNotesOpen ? "−" : "+") : "−"}
-            </span>
+            <span className="ml-auto text-[10px]">{notes ? "+" : "−"}</span>
           </button>
-
-          {notes && isNotesOpen && (
-            <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              {notes}
-            </p>
-          )}
         </div>
       </div>
     </article>

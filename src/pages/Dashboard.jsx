@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
 import { ApplicationModal } from "../components/ApplicationModal";
+import { ApplicationNotesModal } from "../components/ApplicationNotesModal";
 import { SearchBar } from "../components/SearchBar";
 import { StatsCards } from "../components/StatsCards";
 import { useApplications } from "../hooks/useApplications";
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const [editingApplication, setEditingApplication] = useState(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const {
     applications,
@@ -57,6 +59,10 @@ export default function Dashboard() {
   function handleDelete(id) {
     deleteApplication(id);
     toast.success("Application removed");
+  }
+
+  function handleOpenNotes(application) {
+    setSelectedApplication(application);
   }
 
   return (
@@ -117,6 +123,7 @@ export default function Dashboard() {
             applications={applications}
             onDelete={handleDelete}
             onEdit={handleEdit}
+            onOpenNotes={handleOpenNotes}
           />
         </div>
       </section>
@@ -126,6 +133,11 @@ export default function Dashboard() {
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
         editingApplication={editingApplication}
+      />
+
+      <ApplicationNotesModal
+        application={selectedApplication}
+        onClose={() => setSelectedApplication(null)}
       />
     </DashboardLayout>
   );
