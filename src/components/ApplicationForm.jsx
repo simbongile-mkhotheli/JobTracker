@@ -14,6 +14,7 @@ export function ApplicationForm({
   onSubmit,
   initialValues = INITIAL_APPLICATION,
   submitLabel = "Add Application",
+  isLoading = false,
 }) {
   const [formData, setFormData] = useState({
     ...INITIAL_APPLICATION,
@@ -237,7 +238,15 @@ export function ApplicationForm({
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <button
           type="submit"
-          className="h-11 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 active:scale-95 sm:w-auto"
+          disabled={isLoading}
+          className="
+            h-11 rounded-lg bg-indigo-600 px-6 py-2.5
+            text-sm font-medium text-white transition
+            hover:bg-indigo-500 active:scale-95
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+            sm:w-auto
+          "
         >
           {submitLabel}
         </button>
