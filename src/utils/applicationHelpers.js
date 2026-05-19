@@ -12,7 +12,15 @@ export function normalizeWebsite(input = "") {
       ? new URL(raw)
       : new URL(`https://${raw}`);
 
-    return url.hostname.replace(/^www\./, "");
+    const hostname = url.hostname.replace(/^www\./, "");
+
+    const domainPattern = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+
+    if (!domainPattern.test(hostname)) {
+      return "";
+    }
+
+    return hostname;
   } catch {
     return "";
   }
@@ -75,12 +83,7 @@ export function getInitials(name = "") {
  * logo resolver
  */
 export function getLogoSrc(application = {}) {
-  return (
-    application.logoUrl ||
-    application.logo ||
-    application.image ||
-    null
-  );
+  return application.logoUrl || application.logo || application.image || null;
 }
 
 /**
