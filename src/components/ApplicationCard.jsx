@@ -3,6 +3,7 @@
 import { Calendar, FileText, PencilLine, Trash2 } from "lucide-react";
 
 import { STATUS_STYLES } from "../constants";
+import { UI_STYLES } from "../styles/ui";
 
 import {
   formatDate,
@@ -23,30 +24,10 @@ export function ApplicationCard({
   const initials = getInitials(company);
 
   return (
-    <article
-      className="
-        group relative overflow-hidden
-        rounded-[18px]
-        border border-[#243255]
-        bg-[linear-gradient(180deg,#0f1930_0%,#0b1426_100%)]
-        p-5
-        shadow-[0_10px_30px_rgba(0,0,0,0.22)]
-        transition-all duration-300 ease-out
-        hover:-translate-y-1
-        hover:border-[#4f63a7]
-        hover:shadow-[0_22px_50px_rgba(0,0,0,0.32)]
-      "
-    >
-      <div
-        className="
-          pointer-events-none absolute inset-0
-          bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.10),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.05),transparent_38%)]
-          opacity-80 transition-opacity duration-300
-          group-hover:opacity-100
-        "
-      />
+    <article className={`group ${UI_STYLES.card} p-5`}>
+      <div className={UI_STYLES.cardGlow} />
 
-      <div className="pointer-events-none absolute inset-px rounded-[17px] border border-white/5" />
+      <div className={UI_STYLES.cardBorder} />
 
       <div className="relative z-10 flex h-full flex-col">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
