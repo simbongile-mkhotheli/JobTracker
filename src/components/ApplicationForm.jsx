@@ -1,7 +1,7 @@
 // components/ApplicationForm.jsx
 import { useMemo, useState } from "react";
 
-import { INITIAL_APPLICATION, STATUS_OPTIONS, INPUT_STYLE } from "../constants";
+import { INITIAL_APPLICATION, STATUS_OPTIONS } from "../constants";
 import { validateApplicationForm } from "../utils/validation";
 
 import {
@@ -9,6 +9,10 @@ import {
   domainToCompanyName,
   getFaviconUrl,
 } from "../utils/applicationHelpers";
+
+import { InputField } from "./ui/InputField";
+import { SelectField } from "./ui/SelectField";
+import { TextareaField } from "./ui/TextareaField";
 
 export function ApplicationForm({
   onSubmit,
@@ -100,22 +104,15 @@ export function ApplicationForm({
     <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
       <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
         <div className="md:col-span-2">
-          <label
-            htmlFor="website"
-            className="mb-2 block text-sm text-slate-300"
-          >
-            Company Website
-          </label>
-
-          <input
+          <InputField
             id="website"
-            type="text"
             name="website"
+            label="Company Website"
+            type="text"
             value={formData.website}
             onChange={handleChange}
             placeholder="google.com"
-            autoComplete="url"
-            className={INPUT_STYLE}
+            error={errors.website}
           />
 
           {normalizedDomain ? (
@@ -123,115 +120,61 @@ export function ApplicationForm({
               Detected domain: {normalizedDomain}
             </p>
           ) : null}
-
-          {errors.website ? (
-            <p className="mt-2 text-xs text-rose-400">{errors.website}</p>
-          ) : null}
         </div>
 
-        <div>
-          <label
-            htmlFor="company"
-            className="mb-2 block text-sm text-slate-300"
-          >
-            Company
-          </label>
+        <InputField
+          id="company"
+          name="company"
+          label="Company"
+          type="text"
+          value={formData.company}
+          onChange={handleChange}
+          placeholder="Google"
+          error={errors.company}
+        />
 
-          <input
-            id="company"
-            type="text"
-            name="company"
-            value={formData.company}
-            onChange={handleChange}
-            placeholder="Google"
-            autoComplete="organization"
-            className={INPUT_STYLE}
-          />
+        <InputField
+          id="role"
+          name="role"
+          label="Role"
+          type="text"
+          value={formData.role}
+          onChange={handleChange}
+          placeholder="Frontend Developer"
+          error={errors.role}
+        />
 
-          {errors.company ? (
-            <p className="mt-2 text-xs text-rose-400">{errors.company}</p>
-          ) : null}
-        </div>
+        <SelectField
+          id="status"
+          name="status"
+          label="Status"
+          value={formData.status}
+          onChange={handleChange}
+          options={STATUS_OPTIONS}
+          error={errors.status}
+        />
 
-        <div>
-          <label htmlFor="role" className="mb-2 block text-sm text-slate-300">
-            Role
-          </label>
-
-          <input
-            id="role"
-            type="text"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            placeholder="Frontend Developer"
-            autoComplete="organization-title"
-            className={INPUT_STYLE}
-          />
-
-          {errors.role ? (
-            <p className="mt-2 text-xs text-rose-400">{errors.role}</p>
-          ) : null}
-        </div>
-
-        <div>
-          <label htmlFor="status" className="mb-2 block text-sm text-slate-300">
-            Status
-          </label>
-
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className={INPUT_STYLE}
-          >
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status}>{status}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label
-            htmlFor="dateApplied"
-            className="mb-2 block text-sm text-slate-300"
-          >
-            Date Applied
-          </label>
-
-          <input
-            id="dateApplied"
-            type="date"
-            name="dateApplied"
-            value={formData.dateApplied}
-            onChange={handleChange}
-            className={INPUT_STYLE}
-          />
-
-          {errors.dateApplied ? (
-            <p className="mt-2 text-xs text-rose-400">{errors.dateApplied}</p>
-          ) : null}
-        </div>
+        <InputField
+          id="dateApplied"
+          name="dateApplied"
+          label="Date Applied"
+          type="date"
+          value={formData.dateApplied}
+          onChange={handleChange}
+          error={errors.dateApplied}
+        />
 
         <div className="md:col-span-2">
-          <label htmlFor="notes" className="mb-2 block text-sm text-slate-300">
-            Notes
-          </label>
-
-          <textarea
+          <TextareaField
             id="notes"
             name="notes"
+            label="Notes"
             value={formData.notes}
             onChange={handleChange}
-            rows={4}
             placeholder="Optional notes..."
-            className={`${INPUT_STYLE} resize-none`}
+            rows={4}
+            error={errors.notes}
           />
-
-          {errors.notes ? (
-            <p className="mt-2 text-xs text-rose-400">{errors.notes}</p>
-          ) : null}
         </div>
       </div>
 
