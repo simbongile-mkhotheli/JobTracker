@@ -3,7 +3,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ApplicationsGrid } from "../components/ApplicationsGrid";
-import { ApplicationModal } from "../components/ApplicationModal";
+import { ApplicationForm } from "../components/ApplicationForm";
+import { Modal } from "../components/ui/Modal";
 import { ApplicationNotesModal } from "../components/ApplicationNotesModal";
 import { SearchBar } from "../components/SearchBar";
 import { StatsCards } from "../components/StatsCards";
@@ -25,8 +26,6 @@ export default function Dashboard() {
     statusFilter,
     setStatusFilter,
     stats,
-    isLoading,
-    error,
   } = useApplications();
 
   async function handleSubmit(applicationData) {
@@ -130,14 +129,27 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <ApplicationModal
-        isOpen={isFormOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmit}
-        editingApplication={editingApplication}
-        isLoading={isLoading}
-        error={error}
-      />
+      {isFormOpen && (
+        <Modal
+          title={
+            editingApplication ? "Edit Application" : "Track New Opportunity"
+          }
+          description={
+            editingApplication
+              ? "Update your application details and progress."
+              : "Capture and organize your latest job application."
+          }
+          onClose={handleCloseModal}
+        >
+          <ApplicationForm
+            onSubmit={handleSubmit}
+            initialValues={editingApplication || undefined}
+            submitLabel={
+              editingApplication ? "Save Changes" : "Add Application"
+            }
+          />
+        </Modal>
+      )}
 
       <ApplicationNotesModal
         application={selectedApplication}
