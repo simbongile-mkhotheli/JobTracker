@@ -1,38 +1,70 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { seedApplications } from "../data/seedApplications";
 
 import { applicationService } from "../services/applicationService";
+
 import { filterApplications } from "../utils/filterApplications";
+
 import { calculateApplicationStats } from "../utils/calculateApplicationStats";
 
 export function useApplications() {
-  const [applications, setApplications] = useState(() => {
-    const storedApplications = applicationService.getAllApplications();
-
-    return storedApplications.length > 0
-      ? storedApplications
-      : seedApplications;
-  });
+  const [applications, setApplications] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] =
+    useState("All");
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] =
+    useState(false);
+
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadApplications() {
+      try {
+        setIsLoading(true);
+
+        setError(null);
+
+        const data =
+          await applicationService.getAllApplications();
+
+        setApplications(
+          data.length > 0
+            ? data
+            : seedApplications,
+        );
+      } catch (error) {
+        setError("Failed to load applications.");
+
+        console.error(error);
+
+        setApplications(seedApplications);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadApplications();
+  }, []);
 
   async function addApplication(application) {
     try {
       setIsLoading(true);
+
       setError(null);
 
-      const updatedApplications = applicationService.createApplication(
-        applications,
-        application,
-      );
+      const createdApplication =
+        await applicationService.createApplication(
+          application,
+        );
 
-      setApplications(updatedApplications);
+      setApplications((current) => [
+        createdApplication,
+        ...current,
+      ]);
     } catch (error) {
       setError("Failed to create application.");
 
@@ -45,14 +77,17 @@ export function useApplications() {
   async function deleteApplication(id) {
     try {
       setIsLoading(true);
+
       setError(null);
 
-      const updatedApplications = applicationService.deleteApplication(
-        applications,
-        id,
-      );
+      await applicationService.deleteApplication(id);
 
-      setApplications(updatedApplications);
+      setApplications((current) =>
+        current.filter(
+          (application) =>
+            application.id !== id,
+        ),
+      );
     } catch (error) {
       setError("Failed to delete application.");
 
@@ -62,17 +97,26 @@ export function useApplications() {
     }
   }
 
-  async function updateApplication(updatedApplication) {
+  async function updateApplication(
+    updatedApplication,
+  ) {
     try {
       setIsLoading(true);
+
       setError(null);
 
-      const updatedApplications = applicationService.updateApplication(
-        applications,
-        updatedApplication,
-      );
+      const updated =
+        await applicationService.updateApplication(
+          updatedApplication,
+        );
 
-      setApplications(updatedApplications);
+      setApplications((current) =>
+        current.map((application) =>
+          application.id === updated.id
+            ? updated
+            : application,
+        ),
+      );
     } catch (error) {
       setError("Failed to update application.");
 
@@ -83,11 +127,21 @@ export function useApplications() {
   }
 
   const filteredApplications = useMemo(() => {
-    return filterApplications(applications, searchTerm, statusFilter);
-  }, [applications, searchTerm, statusFilter]);
+    return filterApplications(
+      applications,
+      searchTerm,
+      statusFilter,
+    );
+  }, [
+    applications,
+    searchTerm,
+    statusFilter,
+  ]);
 
   const stats = useMemo(() => {
-    return calculateApplicationStats(filteredApplications);
+    return calculateApplicationStats(
+      filteredApplications,
+    );
   }, [filteredApplications]);
 
   return {
@@ -108,6 +162,7 @@ export function useApplications() {
     stats,
 
     isLoading,
+
     error,
   };
 }
