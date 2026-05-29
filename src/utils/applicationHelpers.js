@@ -14,7 +14,8 @@ export function normalizeWebsite(input = "") {
 
     const hostname = url.hostname.replace(/^www\./, "");
 
-    const domainPattern = /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    const domainPattern =
+      /^(?=.{1,253}$)(?!-)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
     if (!domainPattern.test(hostname)) {
       return "";
