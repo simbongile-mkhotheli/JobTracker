@@ -1,85 +1,63 @@
-const STORAGE_KEY = "jobtracker_applications";
+import { supabase } from "../lib/supabase";
 
-function getAllApplications() {
-  try {
-    const storedApplications =
-      localStorage.getItem(STORAGE_KEY);
+async function getAllApplications() {
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-    if (!storedApplications) {
-      return [];
-    }
-
-    const parsedApplications =
-      JSON.parse(storedApplications);
-
-    return Array.isArray(parsedApplications)
-      ? parsedApplications
-      : [];
-  } catch (error) {
-    console.error(
-      "Failed to load applications:",
-      error,
-    );
-
-    return [];
+  if (error) {
+    throw new Error(error.message);
   }
+
+  return data || [];
 }
 
-function saveApplications(applications) {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(applications),
-    );
-  } catch (error) {
-    console.error(
-      "Failed to save applications:",
-      error,
-    );
+async function createApplication(application) {
+  const { data, error } = await supabase
+    .from("applications")
+    .insert([
+      {
+        company: application.company,
+        role: application.role,
+        website: application.website,
+        logoUrl: application.logoUrl,
+        dateApplied: application.dateApplied,
+        status: application.status,
+        notes: application.notes,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
   }
+
+  return data;
 }
 
-function createApplication(
-  applications,
-  application,
-) {
-  const updatedApplications = [
-    ...applications,
-    {
-      ...application,
-      id: Date.now(),
-    },
-  ];
+async function updateApplication(updatedApplication) {
+  const { data, error } = await supabase
+    .from("applications")
+    .update(updatedApplication)
+    .eq("id", updatedApplication.id)
+    .select()
+    .single();
 
-  saveApplications(updatedApplications);
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  return updatedApplications;
+  return data;
 }
 
-function updateApplication(
-  applications,
-  updatedApplication,
-) {
-  const updatedApplications = applications.map(
-    (application) =>
-      application.id === updatedApplication.id
-        ? updatedApplication
-        : application,
-  );
+async function deleteApplication(id) {
+  const { error } = await supabase.from("applications").delete().eq("id", id);
 
-  saveApplications(updatedApplications);
-
-  return updatedApplications;
-}
-
-function deleteApplication(applications, id) {
-  const updatedApplications = applications.filter(
-    (application) => application.id !== id,
-  );
-
-  saveApplications(updatedApplications);
-
-  return updatedApplications;
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export const applicationService = {
