@@ -42,6 +42,15 @@ npm run dev
 
 Visit `http://localhost:5173` to see it in action.
 
+## Environment Variables
+
+Create a `.env.local` file in the root:
+
+```
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
 ## Architecture
 
 ```
