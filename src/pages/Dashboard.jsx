@@ -1,20 +1,22 @@
-// pages/Dashboard.jsx
 import { useState } from "react";
-import toast from "react-hot-toast";
-import { DashboardLayout } from "../layouts/DashboardLayout";
-import { ApplicationsGrid } from "../components/ApplicationsGrid";
+
 import { ApplicationForm } from "../components/ApplicationForm";
-import { Modal } from "../components/ui/Modal";
 import { ApplicationNotesModal } from "../components/ApplicationNotesModal";
+import { ApplicationsGrid } from "../components/ApplicationsGrid";
+import { Modal } from "../components/ui/Modal";
 import { SearchBar } from "../components/SearchBar";
 import { StatsCards } from "../components/StatsCards";
+import { DashboardLayout } from "../layouts/DashboardLayout";
 import { useApplications } from "../hooks/useApplications";
 
 export default function Dashboard() {
-  const [editingApplication, setEditingApplication] = useState(null);
+  const [editingApplication, setEditingApplication] =
+    useState(null);
+
+  const [selectedApplication, setSelectedApplication] =
+    useState(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const {
     applications,
@@ -26,6 +28,8 @@ export default function Dashboard() {
     statusFilter,
     setStatusFilter,
     stats,
+    isLoading,
+    error,
   } = useApplications();
 
   async function handleSubmit(applicationData) {
@@ -34,17 +38,19 @@ export default function Dashboard() {
         ...applicationData,
         id: editingApplication.id,
       });
-      toast.success("Application updated");
 
       setEditingApplication(null);
       setIsFormOpen(false);
-
       return;
     }
 
     await addApplication(applicationData);
-    toast.success("Application added");
     setIsFormOpen(false);
+  }
+
+  function handleOpenCreateModal() {
+    setEditingApplication(null);
+    setIsFormOpen(true);
   }
 
   function handleEdit(application) {
@@ -57,13 +63,12 @@ export default function Dashboard() {
     setIsFormOpen(false);
   }
 
-  function handleDelete(id) {
-    deleteApplication(id);
-    toast.success("Application removed");
-  }
-
   function handleOpenNotes(application) {
     setSelectedApplication(application);
+  }
+
+  function handleCloseNotes() {
+    setSelectedApplication(null);
   }
 
   return (
@@ -84,25 +89,27 @@ export default function Dashboard() {
 
           <button
             type="button"
-            onClick={() => setIsFormOpen(true)}
+            onClick={handleOpenCreateModal}
             className="
-              group inline-flex items-center justify-center gap-2 sm:gap-3 rounded-lg sm:rounded-2xl
+              group inline-flex items-center justify-center gap-2 rounded-lg
               border border-indigo-400/20
               bg-[linear-gradient(135deg,rgba(99,102,241,0.22),rgba(59,130,246,0.18))]
-              px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-medium text-white
+              px-4 py-2.5 text-xs font-medium text-white
               shadow-[0_10px_30px_rgba(59,130,246,0.18)]
               transition-all duration-300
               hover:-translate-y-0.5
               hover:border-indigo-300/40
               hover:shadow-[0_16px_40px_rgba(99,102,241,0.28)]
               active:scale-[0.98]
+              sm:gap-3 sm:rounded-2xl sm:px-5 sm:py-3 sm:text-sm
             "
           >
             <span
               className="
-                flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg sm:rounded-xl
-                bg-white/10 text-base sm:text-lg transition
+                flex h-7 w-7 items-center justify-center rounded-lg
+                bg-white/10 text-base transition
                 group-hover:bg-white/15
+                sm:h-8 sm:w-8 sm:rounded-xl sm:text-lg
               "
             >
               +
@@ -119,12 +126,21 @@ export default function Dashboard() {
           setStatusFilter={setStatusFilter}
         />
 
+        {error ? (
+          <div className="mb-4 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300">
+            {error}
+          </div>
+        ) : null}
+
         <div className="mt-6">
           <ApplicationsGrid
             applications={applications}
-            onDelete={handleDelete}
+            onDelete={deleteApplication}
             onEdit={handleEdit}
             onOpenNotes={handleOpenNotes}
+            onAddNew={handleOpenCreateModal}
+            isLoading={isLoading}
+            searchTerm={searchTerm}
           />
         </div>
       </section>
@@ -132,7 +148,9 @@ export default function Dashboard() {
       {isFormOpen && (
         <Modal
           title={
-            editingApplication ? "Edit Application" : "Track New Opportunity"
+            editingApplication
+              ? "Edit Application"
+              : "Track New Opportunity"
           }
           description={
             editingApplication
@@ -145,16 +163,21 @@ export default function Dashboard() {
             onSubmit={handleSubmit}
             initialValues={editingApplication || undefined}
             submitLabel={
-              editingApplication ? "Save Changes" : "Add Application"
+              editingApplication
+                ? "Save Changes"
+                : "Add Application"
             }
+            isLoading={isLoading}
           />
         </Modal>
       )}
 
-      <ApplicationNotesModal
-        application={selectedApplication}
-        onClose={() => setSelectedApplication(null)}
-      />
+      {selectedApplication ? (
+        <ApplicationNotesModal
+          application={selectedApplication}
+          onClose={handleCloseNotes}
+        />
+      ) : null}
     </DashboardLayout>
   );
 }
