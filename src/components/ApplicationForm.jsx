@@ -182,16 +182,9 @@ export function ApplicationForm({
         <button
           type="submit"
           disabled={isLoading}
-          className="
-            h-11 rounded-lg bg-indigo-600 px-6 py-2.5
-            text-sm font-medium text-white transition
-            hover:bg-indigo-500 active:scale-95
-            disabled:cursor-not-allowed
-            disabled:opacity-50
-            sm:w-auto
-          "
+          className="h-11 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
-          {submitLabel}
+          {isLoading ? "Saving..." : submitLabel}
         </button>
       </div>
     </form>
