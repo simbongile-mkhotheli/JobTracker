@@ -38,10 +38,11 @@ async function createApplication(application) {
 }
 
 async function updateApplication(updatedApplication) {
+  const { id, ...updateData } = updatedApplication;
   const { data, error } = await supabase
     .from("applications")
-    .update(updatedApplication)
-    .eq("id", updatedApplication.id)
+    .update(updateData)
+    .eq("id", id)
     .select()
     .single();
 
