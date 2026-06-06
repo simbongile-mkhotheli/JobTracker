@@ -8,25 +8,34 @@ A clean, maintainable job application tracking dashboard that demonstrates pract
 
 JobTracker showcases:
 
-- **Clean architecture** with clear separation of concerns (components, hooks, services)
-- **Scalable patterns** using custom hooks, service layer abstraction, and reusable UI components
-- **Professional workflows** with structured Git conventions and incremental development
-- **Practical engineering** prioritizing maintainability and real-world best practices over unnecessary complexity
+* **Clean architecture** with clear separation of concerns across components, hooks, services, utilities, and constants
+* **Scalable patterns** using custom hooks, service abstraction, reusable UI primitives, and shared validation logic
+* **Professional workflows** with structured Git conventions, CI, pre-commit hooks, and incremental development
+* **Practical engineering** focused on maintainability, UX quality, and production-ready frontend patterns
 
 ## Core Features
 
-- ✅ Full CRUD workflows for job applications
-- ✅ Modal-based application management
-- ✅ Company metadata support via website detection
-- ✅ Automatic favicon/logo previews
-- ✅ Search and status filtering
-- ✅ Persistent local storage state
-- ✅ Responsive dashboard UI
-- ✅ Reusable component architecture
+* ✅ Full CRUD workflows for job applications
+* ✅ Supabase-backed persistence
+* ✅ Modal-based application management
+* ✅ Notes modal workflow
+* ✅ Company metadata support via website detection
+* ✅ Automatic favicon/logo previews
+* ✅ Search and status filtering
+* ✅ Inline validation feedback
+* ✅ Loading and error states
+* ✅ Responsive dashboard UI
+* ✅ Fixed sidebar layout
+* ✅ Toast notifications
+* ✅ Error boundary support
+* ✅ Reusable component architecture
 
 ## Tech Stack
 
-**Framework**: React | **Build Tool**: Vite | **Styling**: Tailwind CSS | **Icons**: Lucide React | **Persistence**: Local Storage API
+**Framework**: React | **Build Tool**: Vite | **Styling**: Tailwind CSS | **Icons**: Lucide React | **Persistence**: Supabase
+
+**Testing**: Vitest | React Testing Library
+**Quality Tools**: ESLint | Husky | lint-staged | GitHub Actions
 
 ## Getting Started
 
@@ -46,45 +55,63 @@ Visit `http://localhost:5173` to see it in action.
 
 Create a `.env.local` file in the root:
 
-```
+```env
 VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
 ## Architecture
 
-```
+```txt
 src/
 ├── App.jsx              # Root component
 ├── main.jsx             # Entry point
 ├── components/          # Reusable UI components
+│   ├── ui/              # Shared UI primitives
+│   └── form/            # Reusable form fields
 ├── pages/               # Page-level components
-├── hooks/               # Custom React hooks (state logic)
-├── services/            # Business logic & persistence
-├── constants/           # Shared configuration
-├── utils/               # Helper functions
+├── hooks/               # Custom React hooks
+├── services/            # Supabase data access
+├── constants/           # Shared configuration and validation rules
+├── utils/               # Helper functions and business logic
 ├── layouts/             # Layout wrappers
 ├── data/                # Seed data
-└── index.css            # Global styles
+├── lib/                 # Supabase client setup
+└── test/                # Test setup
 ```
 
 **Key patterns**:
 
-- Custom hooks (`useApplications`) encapsulate state management
-- Service layer handles all data persistence
-- Components stay focused on rendering and user interaction
-- Constants centralized for easy maintenance
+* Custom hooks (`useApplications`) encapsulate state management
+* Service layer handles backend persistence
+* Components stay focused on rendering and interaction
+* Constants centralize shared values and validation rules
+* Utilities isolate reusable business logic
+* Tests focus on critical behavior, not implementation details
+
+## Testing
+
+Run tests:
+
+```bash
+npm run test
+```
+
+Current coverage focuses on:
+
+* Application service behavior
+* Website normalization
+* Application validation
 
 ## Contributing
 
 We follow structured Git workflows focused on maintainability:
 
-- **Branches**: `feature/*`, `fix/*`, `refactor/*` — descriptive and focused
-- **Commits**: Conventional format (`feat:`, `fix:`, `refactor:`, `chore:`)
-- **PRs**: Single concern, clear summary, linked issues
+Branches: feature/*, fix/*, refactor/*, chore/* — descriptive and focused
+Commits: Conventional format (feat:, fix:, refactor:, chore:, test:, docs:)
+PRs: Single concern, clear summary, notes, and linked issues
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See CONTRIBUTING.md for detailed guidelines.
 
-## License
 
 MIT License
