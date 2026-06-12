@@ -1,30 +1,58 @@
 import { supabase } from "../lib/supabase";
 
+async function getCurrentUserId() {
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const userId = data.user?.id;
+
+  if (!userId) {
+    throw new Error("User is not authenticated.");
+  }
+
+  return userId;
+}
+
+function toApplicationPayload(application) {
+  return {
+    company: application.company,
+    role: application.role,
+    website: application.website,
+    logoUrl: application.logoUrl,
+    dateApplied: application.dateApplied,
+    status: application.status,
+    notes: application.notes,
+  };
+}
+
 async function getAllApplications() {
+  const userId = await getCurrentUserId();
+
   const { data, error } = await supabase
     .from("applications")
     .select("*")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data || [];
+  return data ?? [];
 }
 
 async function createApplication(application) {
+  const userId = await getCurrentUserId();
+
   const { data, error } = await supabase
     .from("applications")
     .insert([
       {
-        company: application.company,
-        role: application.role,
-        website: application.website,
-        logoUrl: application.logoUrl,
-        dateApplied: application.dateApplied,
-        status: application.status,
-        notes: application.notes,
+        ...toApplicationPayload(application),
+        user_id: userId,
       },
     ])
     .select()
@@ -38,11 +66,10 @@ async function createApplication(application) {
 }
 
 async function updateApplication(updatedApplication) {
-  const { id, ...updateData } = updatedApplication;
   const { data, error } = await supabase
     .from("applications")
-    .update(updateData)
-    .eq("id", id)
+    .update(toApplicationPayload(updatedApplication))
+    .eq("id", updatedApplication.id)
     .select()
     .single();
 
