@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+const DEMO_CREDENTIALS = {
+  email: "admin@admin.com",
+  password: "123456",
+};
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -11,6 +16,12 @@ export default function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  function fillDemoCredentials() {
+    setEmail(DEMO_CREDENTIALS.email);
+    setPassword(DEMO_CREDENTIALS.password);
+    setError("");
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -45,6 +56,23 @@ export default function Login() {
           </div>
         ) : null}
 
+        <div className="mb-4 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+          <p className="text-sm font-medium text-cyan-100">
+            Recruiter demo access
+          </p>
+          <p className="mt-1 text-xs leading-5 text-cyan-100/80">
+            Use one click to fill demo credentials, then sign in.
+          </p>
+
+          <button
+            type="button"
+            onClick={fillDemoCredentials}
+            className="mt-3 rounded-xl border border-cyan-400/20 bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-500/25"
+          >
+            Fill demo credentials
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
@@ -56,6 +84,7 @@ export default function Login() {
             <input
               id="email"
               type="email"
+              autoComplete="username"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500"
@@ -74,6 +103,7 @@ export default function Login() {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-white outline-none transition focus:border-indigo-500"
