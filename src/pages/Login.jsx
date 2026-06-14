@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -12,24 +12,18 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAutoSigningIn, setIsAutoSigningIn] = useState(false);
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  function fillDemoCredentials() {
-    setEmail(DEMO_CREDENTIALS.email);
-    setPassword(DEMO_CREDENTIALS.password);
-    setError("");
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
+  async function handleSignIn(nextEmail, nextPassword) {
     setIsLoading(true);
     setError("");
 
     try {
-      await signIn(email, password);
+      await signIn(nextEmail, nextPassword);
 
       const redirectTo = location.state?.from?.pathname || "/";
       navigate(redirectTo, { replace: true });
@@ -37,7 +31,33 @@ export default function Login() {
       setError(err.message || "Failed to sign in.");
     } finally {
       setIsLoading(false);
+      setIsAutoSigningIn(false);
     }
+  }
+
+  function fillDemoCredentials() {
+    setEmail(DEMO_CREDENTIALS.email);
+    setPassword(DEMO_CREDENTIALS.password);
+    setError("");
+  }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsAutoSigningIn(true);
+      setEmail(DEMO_CREDENTIALS.email);
+      setPassword(DEMO_CREDENTIALS.password);
+      void handleSignIn(
+        DEMO_CREDENTIALS.email,
+        DEMO_CREDENTIALS.password,
+      );
+    }, 800);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    await handleSignIn(email, password);
   }
 
   return (
@@ -61,7 +81,7 @@ export default function Login() {
             Recruiter demo access
           </p>
           <p className="mt-1 text-xs leading-5 text-cyan-100/80">
-            Use one click to fill demo credentials, then sign in.
+            The demo account will log in automatically after the screen loads.
           </p>
 
           <button
@@ -114,10 +134,12 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isAutoSigningIn}
             className="h-11 w-full rounded-xl bg-indigo-600 px-5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isAutoSigningIn || isLoading
+              ? "Signing in..."
+              : "Sign in"}
           </button>
         </form>
 
