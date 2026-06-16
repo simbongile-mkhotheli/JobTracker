@@ -66,10 +66,13 @@ async function createApplication(application) {
 }
 
 async function updateApplication(updatedApplication) {
+  const userId = await getCurrentUserId();
+
   const { data, error } = await supabase
     .from("applications")
     .update(toApplicationPayload(updatedApplication))
     .eq("id", updatedApplication.id)
+    .eq("user_id", userId)
     .select()
     .single();
 
@@ -81,7 +84,13 @@ async function updateApplication(updatedApplication) {
 }
 
 async function deleteApplication(id) {
-  const { error } = await supabase.from("applications").delete().eq("id", id);
+  const userId = await getCurrentUserId();
+
+  const { error } = await supabase
+    .from("applications")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId);
 
   if (error) {
     throw new Error(error.message);
