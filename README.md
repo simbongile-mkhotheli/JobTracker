@@ -8,27 +8,10 @@ A clean, maintainable job application tracking dashboard that demonstrates pract
 
 JobTracker showcases:
 
-* **Clean architecture** with clear separation of concerns across components, hooks, services, utilities, and constants
-* **Scalable patterns** using custom hooks, service abstraction, reusable UI primitives, and shared validation logic
-* **Professional workflows** with structured Git conventions, CI, pre-commit hooks, and incremental development
-* **Practical engineering** focused on maintainability, UX quality, and production-ready frontend patterns
-
-## Core Features
-
-* ✅ Full CRUD workflows for job applications
-* ✅ Supabase-backed persistence
-* ✅ Modal-based application management
-* ✅ Notes modal workflow
-* ✅ Company metadata support via website detection
-* ✅ Automatic favicon/logo previews
-* ✅ Search and status filtering
-* ✅ Inline validation feedback
-* ✅ Loading and error states
-* ✅ Responsive dashboard UI
-* ✅ Fixed sidebar layout
-* ✅ Toast notifications
-* ✅ Error boundary support
-* ✅ Reusable component architecture
+- **Clean architecture** with clear separation of concerns across components, hooks, services, utilities, and constants
+- **Scalable patterns** using custom hooks, service abstraction, reusable UI primitives, and shared validation logic
+- **Professional workflows** with structured Git conventions, CI, pre-commit hooks, and incremental development
+- **Practical engineering** focused on maintainability, UX quality, and production-ready frontend patterns
 
 ## Tech Stack
 
@@ -82,12 +65,12 @@ src/
 
 **Key patterns**:
 
-* Custom hooks (`useApplications`) encapsulate state management
-* Service layer handles backend persistence
-* Components stay focused on rendering and interaction
-* Constants centralize shared values and validation rules
-* Utilities isolate reusable business logic
-* Tests focus on critical behavior, not implementation details
+- Custom hooks (`useApplications`) encapsulate state management
+- Service layer handles backend persistence
+- Components stay focused on rendering and interaction
+- Constants centralize shared values and validation rules
+- Utilities isolate reusable business logic
+- Tests focus on critical behavior, not implementation details
 
 ## Testing
 
@@ -99,19 +82,27 @@ npm run test
 
 Current coverage focuses on:
 
-* Application service behavior
-* Website normalization
-* Application validation
+- Application service behavior
+- Website normalization
+- Application validation
 
 ## Contributing
 
 We follow structured Git workflows focused on maintainability:
 
-Branches: feature/*, fix/*, refactor/*, chore/* — descriptive and focused
+Branches: feature/_, fix/_, refactor/_, chore/_ — descriptive and focused
 Commits: Conventional format (feat:, fix:, refactor:, chore:, test:, docs:)
 PRs: Single concern, clear summary, notes, and linked issues
 
 See CONTRIBUTING.md for detailed guidelines.
 
-
 MIT License
+
+## Database Schema
+
+The application's database contract is documented in:
+
+- `docs/supabase-schema.md`
+- `supabase/migrations/20260616_000001_jobtracker_schema.sql`
+
+The `applications` table is protected with Row Level Security so users can only access their own records.
