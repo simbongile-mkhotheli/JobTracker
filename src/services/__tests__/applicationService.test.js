@@ -1,173 +1,304 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const {
-  fromMock,
-  selectMock,
-  insertMock,
-  updateMock,
-  deleteMock,
-  orderMock,
-  eqMock,
-  singleMock,
-} = vi.hoisted(() => ({
+const { authGetUserMock, fromMock } = vi.hoisted(() => ({
+  authGetUserMock: vi.fn(),
   fromMock: vi.fn(),
-  selectMock: vi.fn(),
-  insertMock: vi.fn(),
-  updateMock: vi.fn(),
-  deleteMock: vi.fn(),
-  orderMock: vi.fn(),
-  eqMock: vi.fn(),
-  singleMock: vi.fn(),
 }));
 
 vi.mock("../../lib/supabase", () => ({
   supabase: {
+    auth: {
+      getUser: authGetUserMock,
+    },
     from: fromMock,
   },
 }));
 
 import { applicationService } from "../applicationService";
 
-const existingApplication = {
+const authenticatedUserId = "user-123";
+
+const ownedApplication = {
   id: 1,
-  company: "Google",
+  company: "Boxfusion",
   role: "Frontend Developer",
-  website: "google.com",
-  logoUrl: "https://www.google.com/s2/favicons?domain=google.com&sz=128",
+  website: "boxfusion.io",
+  logoUrl: "https://www.google.com/s2/favicons?domain=boxfusion.io&sz=128",
   dateApplied: "2026-05-01",
   status: "Interview",
   notes: "Reached recruiter screening stage.",
 };
 
+const secondOwnedApplication = {
+  id: 2,
+  company: "OfferZen",
+  role: "UI Engineer",
+  website: "offerzen.com",
+  logoUrl: "https://www.google.com/s2/favicons?domain=offerzen.com&sz=128",
+  dateApplied: "2026-04-28",
+  status: "Applied",
+  notes: "Applied through careers portal.",
+};
+
 const newApplication = {
-  company: "Google",
+  company: "MIP Holdings",
   role: "Software Developer",
-  website: "google.com",
-  logoUrl: "https://www.google.com/s2/favicons?domain=google.com&sz=128",
+  website: "mip.co.za",
+  logoUrl: "https://www.google.com/s2/favicons?domain=mip.co.za&sz=128",
   dateApplied: "2026-04-10",
   status: "Applied",
   notes: "Application submitted online.",
 };
 
+const updatedApplication = {
+  ...ownedApplication,
+  role: "Senior Frontend Developer",
+  status: "Offer",
+};
+
+function mockAuthenticatedUser(userId = authenticatedUserId) {
+  authGetUserMock.mockResolvedValueOnce({
+    data: { user: { id: userId } },
+    error: null,
+  });
+}
+
+function mockUnauthenticatedUser() {
+  authGetUserMock.mockResolvedValueOnce({
+    data: { user: null },
+    error: null,
+  });
+}
+
+function mockGetAllApplications(applications) {
+  const orderMock = vi.fn().mockResolvedValueOnce({
+    data: applications,
+    error: null,
+  });
+
+  const eqMock = vi.fn().mockReturnValueOnce({
+    order: orderMock,
+  });
+
+  const selectMock = vi.fn().mockReturnValueOnce({
+    eq: eqMock,
+  });
+
+  fromMock.mockReturnValueOnce({
+    select: selectMock,
+  });
+}
+
+function mockCreateApplication(createdApplication) {
+  const singleMock = vi.fn().mockResolvedValueOnce({
+    data: createdApplication,
+    error: null,
+  });
+
+  const selectMock = vi.fn().mockReturnValueOnce({
+    single: singleMock,
+  });
+
+  const insertMock = vi.fn().mockReturnValueOnce({
+    select: selectMock,
+  });
+
+  fromMock.mockReturnValueOnce({
+    insert: insertMock,
+  });
+
+  return { insertMock };
+}
+
+function mockOwnershipCheck({ exists = true, applicationId = 1 }) {
+  const ownershipResultMock = vi.fn().mockResolvedValueOnce({
+    data: exists ? [{ id: applicationId }] : [],
+    error: null,
+  });
+
+  const userEqMock = vi.fn().mockReturnValueOnce({
+    eq: ownershipResultMock,
+  });
+
+  const idEqMock = vi.fn().mockReturnValueOnce({
+    eq: userEqMock,
+  });
+
+  const selectMock = vi.fn().mockReturnValueOnce({
+    eq: idEqMock,
+  });
+
+  fromMock.mockReturnValueOnce({
+    select: selectMock,
+  });
+}
+
+function mockUpdateApplication(savedApplication) {
+  const singleMock = vi.fn().mockResolvedValueOnce({
+    data: savedApplication,
+    error: null,
+  });
+
+  const selectMock = vi.fn().mockReturnValueOnce({
+    single: singleMock,
+  });
+
+  const userEqMock = vi.fn().mockReturnValueOnce({
+    select: selectMock,
+  });
+
+  const idEqMock = vi.fn().mockReturnValueOnce({
+    eq: userEqMock,
+  });
+
+  const updateMock = vi.fn().mockReturnValueOnce({
+    eq: idEqMock,
+  });
+
+  fromMock.mockReturnValueOnce({
+    update: updateMock,
+  });
+
+  return { updateMock };
+}
+
+function mockDeleteApplication() {
+  const deleteResultMock = vi.fn().mockResolvedValueOnce({
+    error: null,
+  });
+
+  const userEqMock = vi.fn().mockReturnValueOnce({
+    eq: deleteResultMock,
+  });
+
+  const idEqMock = vi.fn().mockReturnValueOnce({
+    eq: userEqMock,
+  });
+
+  const deleteMock = vi.fn().mockReturnValueOnce({
+    eq: idEqMock,
+  });
+
+  fromMock.mockReturnValueOnce({
+    delete: deleteMock,
+  });
+
+  return { deleteMock };
+}
+
 describe("applicationService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    fromMock.mockReturnValue({
-      select: selectMock,
-      insert: insertMock,
-      update: updateMock,
-      delete: deleteMock,
-    });
-
-    selectMock.mockReset();
-    insertMock.mockReset();
-    updateMock.mockReset();
-    deleteMock.mockReset();
-    eqMock.mockReset();
-    orderMock.mockReset();
-    singleMock.mockReset();
   });
 
-  it("returns applications from Supabase", async () => {
-    orderMock.mockResolvedValueOnce({
-      data: [existingApplication],
-      error: null,
-    });
-
-    selectMock.mockReturnValueOnce({
-      order: orderMock,
-    });
+  it("returns applications for the authenticated user", async () => {
+    mockAuthenticatedUser();
+    mockGetAllApplications([ownedApplication, secondOwnedApplication]);
 
     const result = await applicationService.getAllApplications();
 
-    expect(result).toEqual([existingApplication]);
+    expect(result).toEqual([ownedApplication, secondOwnedApplication]);
   });
 
-  it("creates a new application in Supabase", async () => {
-    const insertedApplication = {
+  it("throws when the user is not authenticated", async () => {
+    mockUnauthenticatedUser();
+
+    await expect(applicationService.getAllApplications()).rejects.toThrow(
+      "User is not authenticated.",
+    );
+  });
+
+  it("creates a new application for the authenticated user", async () => {
+    mockAuthenticatedUser();
+
+    const createdApplication = {
       id: 3,
       ...newApplication,
+      user_id: authenticatedUserId,
     };
 
-    singleMock.mockResolvedValueOnce({
-      data: insertedApplication,
-      error: null,
-    });
-
-    selectMock.mockReturnValueOnce({
-      single: singleMock,
-    });
-
-    insertMock.mockReturnValueOnce({
-      select: selectMock,
-    });
+    const { insertMock } = mockCreateApplication(createdApplication);
 
     const result = await applicationService.createApplication(newApplication);
 
     expect(result).toMatchObject(newApplication);
+
+    expect(insertMock).toHaveBeenCalledWith([
+      expect.objectContaining({
+        company: "MIP Holdings",
+        role: "Software Developer",
+        user_id: authenticatedUserId,
+      }),
+    ]);
   });
 
-  it("updates an existing application in Supabase", async () => {
-    const updatedApplication = {
-      ...existingApplication,
-      role: "Senior Frontend Developer",
-      status: "Offer",
+  it("rejects creating an application when the user is not authenticated", async () => {
+    mockUnauthenticatedUser();
+
+    await expect(
+      applicationService.createApplication(newApplication),
+    ).rejects.toThrow("User is not authenticated.");
+  });
+
+  it("updates only the authenticated user's application", async () => {
+    mockAuthenticatedUser();
+    mockOwnershipCheck({
+      exists: true,
+      applicationId: ownedApplication.id,
+    });
+
+    const savedApplication = {
+      ...updatedApplication,
+      user_id: authenticatedUserId,
     };
 
-    singleMock.mockResolvedValueOnce({
-      data: updatedApplication,
-      error: null,
-    });
-
-    selectMock.mockReturnValueOnce({
-      single: singleMock,
-    });
-
-    eqMock.mockReturnValueOnce({
-      select: selectMock,
-    });
-
-    updateMock.mockReturnValueOnce({
-      eq: eqMock,
-    });
+    mockUpdateApplication(savedApplication);
 
     const result =
       await applicationService.updateApplication(updatedApplication);
 
     expect(result).toMatchObject({
+      id: ownedApplication.id,
       role: "Senior Frontend Developer",
       status: "Offer",
     });
   });
 
-  it("deletes an application in Supabase", async () => {
-    eqMock.mockResolvedValueOnce({
-      error: null,
+  it("rejects updating an application that the user does not own", async () => {
+    mockAuthenticatedUser();
+    mockOwnershipCheck({
+      exists: false,
+      applicationId: ownedApplication.id,
     });
 
-    deleteMock.mockReturnValueOnce({
-      eq: eqMock,
-    });
-
-    await applicationService.deleteApplication(existingApplication.id);
-
-    expect(deleteMock).toHaveBeenCalledTimes(1);
-    expect(eqMock).toHaveBeenCalledWith("id", existingApplication.id);
+    await expect(
+      applicationService.updateApplication(updatedApplication),
+    ).rejects.toThrow("Application not found or access denied.");
   });
 
-  it("throws when Supabase returns an error while loading applications", async () => {
-    orderMock.mockResolvedValueOnce({
-      data: null,
-      error: { message: "Failed to load" },
+  it("deletes only the authenticated user's application", async () => {
+    mockAuthenticatedUser();
+    mockOwnershipCheck({
+      exists: true,
+      applicationId: ownedApplication.id,
     });
 
-    selectMock.mockReturnValueOnce({
-      order: orderMock,
+    const { deleteMock } = mockDeleteApplication();
+
+    await applicationService.deleteApplication(ownedApplication.id);
+
+    expect(deleteMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects deleting an application that the user does not own", async () => {
+    mockAuthenticatedUser();
+    mockOwnershipCheck({
+      exists: false,
+      applicationId: ownedApplication.id,
     });
 
-    await expect(applicationService.getAllApplications()).rejects.toThrow(
-      "Failed to load",
-    );
+    await expect(
+      applicationService.deleteApplication(ownedApplication.id),
+    ).rejects.toThrow("Application not found or access denied.");
   });
 });
