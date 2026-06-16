@@ -116,16 +116,12 @@ function mockOwnershipCheck({ exists = true, applicationId = 1 }) {
     error: null,
   });
 
-  const userEqMock = vi.fn().mockReturnValueOnce({
+  const firstEqMock = vi.fn().mockReturnValueOnce({
     eq: ownershipResultMock,
   });
 
-  const idEqMock = vi.fn().mockReturnValueOnce({
-    eq: userEqMock,
-  });
-
   const selectMock = vi.fn().mockReturnValueOnce({
-    eq: idEqMock,
+    eq: firstEqMock,
   });
 
   fromMock.mockReturnValueOnce({
@@ -167,16 +163,12 @@ function mockDeleteApplication() {
     error: null,
   });
 
-  const userEqMock = vi.fn().mockReturnValueOnce({
+  const firstEqMock = vi.fn().mockReturnValueOnce({
     eq: deleteResultMock,
   });
 
-  const idEqMock = vi.fn().mockReturnValueOnce({
-    eq: userEqMock,
-  });
-
   const deleteMock = vi.fn().mockReturnValueOnce({
-    eq: idEqMock,
+    eq: firstEqMock,
   });
 
   fromMock.mockReturnValueOnce({
