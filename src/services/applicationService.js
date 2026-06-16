@@ -28,6 +28,22 @@ function toApplicationPayload(application) {
   };
 }
 
+async function ensureApplicationOwnership(id, userId) {
+  const { data, error } = await supabase
+    .from("applications")
+    .select("id")
+    .eq("id", id)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error("Application not found or access denied.");
+  }
+}
+
 async function getAllApplications() {
   const userId = await getCurrentUserId();
 
@@ -68,6 +84,8 @@ async function createApplication(application) {
 async function updateApplication(updatedApplication) {
   const userId = await getCurrentUserId();
 
+  await ensureApplicationOwnership(updatedApplication.id, userId);
+
   const { data, error } = await supabase
     .from("applications")
     .update(toApplicationPayload(updatedApplication))
@@ -85,6 +103,8 @@ async function updateApplication(updatedApplication) {
 
 async function deleteApplication(id) {
   const userId = await getCurrentUserId();
+
+  await ensureApplicationOwnership(id, userId);
 
   const { error } = await supabase
     .from("applications")
