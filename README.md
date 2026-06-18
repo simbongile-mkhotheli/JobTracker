@@ -72,6 +72,16 @@ src/
 - Utilities isolate reusable business logic
 - Tests focus on critical behavior, not implementation details
 
+## Database Schema
+
+The application's database contract is documented in:
+
+- `docs/supabase-schema.md`
+- `supabase/migrations/20260616_000001_jobtracker_schema.sql`
+- `supabase/migrations/20260616_000002_normalize_applications_schema.sql`
+
+The `applications` table uses Row Level Security so users can only access their own records.
+
 ## Testing
 
 Run tests:
@@ -97,12 +107,3 @@ PRs: Single concern, clear summary, notes, and linked issues
 See CONTRIBUTING.md for detailed guidelines.
 
 MIT License
-
-## Database Schema
-
-The application's database contract is documented in:
-
-- `docs/supabase-schema.md`
-- `supabase/migrations/20260616_000001_jobtracker_schema.sql`
-
-The `applications` table is protected with Row Level Security so users can only access their own records.

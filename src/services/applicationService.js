@@ -1,5 +1,32 @@
 import { supabase } from "../lib/supabase";
 
+function toDbPayload(application) {
+  return {
+    company: application.company,
+    role: application.role,
+    website: application.website,
+    logo_url: application.logoUrl,
+    date_applied: application.dateApplied,
+    status: application.status,
+    notes: application.notes,
+  };
+}
+
+function toAppModel(row) {
+  return {
+    id: row.id,
+    company: row.company,
+    role: row.role,
+    website: row.website,
+    logoUrl: row.logo_url ?? "",
+    dateApplied: row.date_applied ?? "",
+    status: row.status,
+    notes: row.notes ?? "",
+    user_id: row.user_id,
+    created_at: row.created_at,
+  };
+}
+
 async function getCurrentUserId() {
   const { data, error } = await supabase.auth.getUser();
 
@@ -14,18 +41,6 @@ async function getCurrentUserId() {
   }
 
   return userId;
-}
-
-function toApplicationPayload(application) {
-  return {
-    company: application.company,
-    role: application.role,
-    website: application.website,
-    logoUrl: application.logoUrl,
-    dateApplied: application.dateApplied,
-    status: application.status,
-    notes: application.notes,
-  };
 }
 
 async function ensureApplicationOwnership(id, userId) {
@@ -57,7 +72,7 @@ async function getAllApplications() {
     throw new Error(error.message);
   }
 
-  return data ?? [];
+  return (data ?? []).map(toAppModel);
 }
 
 async function createApplication(application) {
@@ -67,18 +82,18 @@ async function createApplication(application) {
     .from("applications")
     .insert([
       {
-        ...toApplicationPayload(application),
+        ...toDbPayload(application),
         user_id: userId,
       },
     ])
-    .select()
+    .select("*")
     .single();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  return toAppModel(data);
 }
 
 async function updateApplication(updatedApplication) {
@@ -88,17 +103,17 @@ async function updateApplication(updatedApplication) {
 
   const { data, error } = await supabase
     .from("applications")
-    .update(toApplicationPayload(updatedApplication))
+    .update(toDbPayload(updatedApplication))
     .eq("id", updatedApplication.id)
     .eq("user_id", userId)
-    .select()
+    .select("*")
     .single();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  return toAppModel(data);
 }
 
 async function deleteApplication(id) {

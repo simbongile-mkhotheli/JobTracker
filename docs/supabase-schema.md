@@ -4,18 +4,18 @@
 
 ### Columns
 
-| Column      | Type        | Constraints                                 | Notes                               |
-| ----------- | ----------- | ------------------------------------------- | ----------------------------------- |
-| id          | bigint      | primary key, identity                       | Application identifier              |
-| created_at  | timestamptz | not null, default now()                     | Record creation timestamp           |
-| user_id     | uuid        | not null, FK to auth.users(id)              | Owner of the application            |
-| company     | text        | not null                                    | Company name                        |
-| role        | text        | not null                                    | Role title                          |
-| website     | text        | nullable                                    | Company website/domain              |
-| logoUrl     | text        | nullable                                    | Favicon or logo URL                 |
-| dateApplied | date        | not null                                    | Date application was submitted      |
-| status      | text        | not null, default Applied, check constraint | Applied, Interview, Offer, Rejected |
-| notes       | text        | nullable                                    | Optional notes, max 500 chars       |
+| Column | Type | Constraints | Notes |
+|---|---|---|---|
+| id | bigint | primary key, identity | Application identifier |
+| created_at | timestamptz | not null, default now() | Record creation timestamp |
+| user_id | uuid | not null, FK to auth.users(id) | Owner of the application |
+| company | text | not null | Company name |
+| role | text | not null | Role title |
+| website | text | nullable | Company website/domain |
+| logo_url | text | nullable | Favicon or logo URL |
+| date_applied | date | not null | Date application was submitted |
+| status | text | not null, default Applied, check constraint | Applied, Interview, Offer, Rejected |
+| notes | text | nullable | Optional notes, max 500 chars |
 
 ## Indexes
 
