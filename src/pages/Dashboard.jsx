@@ -71,6 +71,10 @@ export default function Dashboard() {
     setSelectedApplication(null);
   }
 
+  function handleClearSearch() {
+    setSearchTerm("");
+  }
+
   return (
     <DashboardLayout>
       <StatsCards stats={stats} />
@@ -139,6 +143,7 @@ export default function Dashboard() {
             onEdit={handleEdit}
             onOpenNotes={handleOpenNotes}
             onAddNew={handleOpenCreateModal}
+            onClearSearch={handleClearSearch}
             isLoading={isLoading}
             searchTerm={searchTerm}
           />
