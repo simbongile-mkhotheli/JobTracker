@@ -8,12 +8,13 @@ export function ApplicationsGrid({
   onEdit,
   onOpenNotes,
   onAddNew,
+  onClearSearch,
   isLoading = false,
   searchTerm = "",
 }) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 md:gap-5 lg:gap-6">
+      <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
           <SkeletonCard key={index} />
         ))}
@@ -40,13 +41,13 @@ export function ApplicationsGrid({
         actionLabel={
           isSearchEmpty ? "Clear Search" : "Add Application"
         }
-        onAction={onAddNew}
+        onAction={isSearchEmpty ? onClearSearch : onAddNew}
       />
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 md:gap-5 lg:gap-6">
+    <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
       {applications.map((application) => (
         <ApplicationCard
           key={application.id}
