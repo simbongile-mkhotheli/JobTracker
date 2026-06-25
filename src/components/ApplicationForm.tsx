@@ -1,4 +1,4 @@
-// components/ApplicationForm.jsx
+import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useState } from "react";
 
 import { INITIAL_APPLICATION, STATUS_OPTIONS } from "../constants";
@@ -13,14 +13,29 @@ import {
 import { InputField } from "./ui/InputField";
 import { SelectField } from "./ui/SelectField";
 import { TextareaField } from "./ui/TextareaField";
+import type {
+  Application,
+  ApplicationFormValues,
+} from "../types/application";
+
+type ApplicationFormErrors = Partial<
+  Record<keyof ApplicationFormValues, string>
+>;
+
+interface ApplicationFormProps {
+  onSubmit: (application: ApplicationFormValues) => void | Promise<void>;
+  initialValues?: ApplicationFormValues | Application;
+  submitLabel?: string;
+  isLoading?: boolean;
+}
 
 export function ApplicationForm({
   onSubmit,
   initialValues = INITIAL_APPLICATION,
   submitLabel = "Add Application",
   isLoading = false,
-}) {
-  const [formData, setFormData] = useState({
+}: ApplicationFormProps) {
+  const [formData, setFormData] = useState<ApplicationFormValues>({
     ...INITIAL_APPLICATION,
     ...initialValues,
   });
@@ -29,14 +44,18 @@ export function ApplicationForm({
     Boolean(initialValues.company),
   );
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<ApplicationFormErrors>({});
 
   const normalizedDomain = useMemo(
     () => normalizeWebsite(formData.website),
     [formData.website],
   );
 
-  function handleChange(event) {
+  function handleChange(
+    event: ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) {
     const { name, value } = event.target;
 
     if (name === "company") {
@@ -70,17 +89,17 @@ export function ApplicationForm({
 
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name as keyof ApplicationFormValues]: value,
     }));
   }
 
-  function handleSubmit(event) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const validationErrors = validateApplicationForm({
       ...formData,
       normalizedDomain,
-    });
+    }) as ApplicationFormErrors;
 
     setErrors(validationErrors);
 
@@ -150,7 +169,7 @@ export function ApplicationForm({
           label="Status"
           value={formData.status}
           onChange={handleChange}
-          options={STATUS_OPTIONS}
+          options={[...STATUS_OPTIONS]}
           error={errors.status}
         />
 
@@ -161,6 +180,7 @@ export function ApplicationForm({
           type="date"
           value={formData.dateApplied}
           onChange={handleChange}
+          placeholder=""
           error={errors.dateApplied}
         />
 

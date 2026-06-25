@@ -1,9 +1,16 @@
 import { X } from "lucide-react";
 
+import type { Application } from "../types/application";
+
+interface ApplicationNotesModalProps {
+  application: Application | null;
+  onClose: () => void;
+}
+
 export function ApplicationNotesModal({
   application,
   onClose,
-}) {
+}: ApplicationNotesModalProps) {
   if (!application) {
     return null;
   }

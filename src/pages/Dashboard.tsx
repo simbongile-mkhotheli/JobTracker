@@ -8,13 +8,17 @@ import { SearchBar } from "../components/SearchBar";
 import { StatsCards } from "../components/StatsCards";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { useApplications } from "../hooks/useApplications";
+import type {
+  Application,
+  ApplicationFormValues,
+} from "../types/application";
 
 export default function Dashboard() {
   const [editingApplication, setEditingApplication] =
-    useState(null);
+    useState<Application | null>(null);
 
   const [selectedApplication, setSelectedApplication] =
-    useState(null);
+    useState<Application | null>(null);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -32,7 +36,7 @@ export default function Dashboard() {
     error,
   } = useApplications();
 
-  async function handleSubmit(applicationData) {
+  async function handleSubmit(applicationData: ApplicationFormValues) {
     if (editingApplication) {
       await updateApplication({
         ...applicationData,
@@ -53,7 +57,7 @@ export default function Dashboard() {
     setIsFormOpen(true);
   }
 
-  function handleEdit(application) {
+  function handleEdit(application: Application) {
     setEditingApplication(application);
     setIsFormOpen(true);
   }
@@ -63,7 +67,7 @@ export default function Dashboard() {
     setIsFormOpen(false);
   }
 
-  function handleOpenNotes(application) {
+  function handleOpenNotes(application: Application) {
     setSelectedApplication(application);
   }
 

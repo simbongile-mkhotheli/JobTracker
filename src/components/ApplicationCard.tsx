@@ -1,5 +1,3 @@
-// components/ApplicationCard.jsx
-
 import { Calendar, FileText, PencilLine, Trash2 } from "lucide-react";
 
 import { STATUS_STYLES } from "../constants";
@@ -10,13 +8,24 @@ import {
   getInitials,
   getLogoSrc,
 } from "../utils/applicationHelpers";
+import type {
+  Application,
+  ApplicationId,
+} from "../types/application";
+
+interface ApplicationCardProps {
+  application: Application;
+  onDelete: (id: ApplicationId) => void | Promise<void>;
+  onEdit: (application: Application) => void;
+  onOpenNotes: (application: Application) => void;
+}
 
 export function ApplicationCard({
   application,
   onDelete,
   onEdit,
   onOpenNotes,
-}) {
+}: ApplicationCardProps) {
   const { id, company, role, status, dateApplied, notes } = application;
 
   const logoSrc = getLogoSrc(application);
@@ -145,7 +154,7 @@ export function ApplicationCard({
               className={notes ? "text-slate-500" : "text-slate-700"}
             />
             <span>Notes</span>
-            <span className="ml-auto text-[10px]">{notes ? "+" : "−"}</span>
+            <span className="ml-auto text-[10px]">{notes ? "+" : "-"}</span>
           </button>
         </div>
       </div>

@@ -3,15 +3,23 @@ import { useEffect, useMemo, useState } from "react";
 import { applicationService } from "../services/applicationService";
 import { filterApplications } from "../utils/filterApplications";
 import { calculateApplicationStats } from "../utils/calculateApplicationStats";
+import type {
+  Application,
+  ApplicationId,
+  ApplicationStatusFilter,
+  ApplicationUpdate,
+  NewApplication,
+} from "../types/application";
 
 export function useApplications() {
-  const [applications, setApplications] = useState([]);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] =
+    useState<ApplicationStatusFilter>("All");
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadApplications() {
@@ -33,7 +41,7 @@ export function useApplications() {
     loadApplications();
   }, []);
 
-  async function addApplication(application) {
+  async function addApplication(application: NewApplication) {
     try {
       setIsLoading(true);
       setError(null);
@@ -53,7 +61,7 @@ export function useApplications() {
     }
   }
 
-  async function updateApplication(updatedApplication) {
+  async function updateApplication(updatedApplication: ApplicationUpdate) {
     try {
       setIsLoading(true);
       setError(null);
@@ -76,7 +84,7 @@ export function useApplications() {
     }
   }
 
-  async function deleteApplication(id) {
+  async function deleteApplication(id: ApplicationId) {
     try {
       setIsLoading(true);
       setError(null);
