@@ -56,6 +56,22 @@ const updatedApplication = {
   status: "Offer",
 };
 
+function toDbRow(application, overrides = {}) {
+  return {
+    id: application.id,
+    company: application.company,
+    role: application.role,
+    website: application.website,
+    logo_url: application.logoUrl,
+    date_applied: application.dateApplied,
+    status: application.status,
+    notes: application.notes,
+    user_id: authenticatedUserId,
+    created_at: "2026-06-16T00:00:00.000Z",
+    ...overrides,
+  };
+}
+
 function mockAuthenticatedUser(userId = authenticatedUserId) {
   authGetUserMock.mockResolvedValueOnce({
     data: { user: { id: userId } },
@@ -111,14 +127,12 @@ function mockCreateApplication(createdApplication) {
 }
 
 function mockOwnershipCheck({ exists = true, applicationId = 1 }) {
-  const ownershipResultMock = vi.fn().mockResolvedValueOnce({
+  const ownershipResult = {
     data: exists ? [{ id: applicationId }] : [],
     error: null,
-  });
+  };
 
-  const userEqMock = vi.fn().mockReturnValueOnce({
-    eq: ownershipResultMock,
-  });
+  const userEqMock = vi.fn().mockResolvedValueOnce(ownershipResult);
 
   const idEqMock = vi.fn().mockReturnValueOnce({
     eq: userEqMock,
@@ -193,11 +207,17 @@ describe("applicationService", () => {
 
   it("returns applications for the authenticated user", async () => {
     mockAuthenticatedUser();
-    mockGetAllApplications([ownedApplication, secondOwnedApplication]);
+    mockGetAllApplications([
+      toDbRow(ownedApplication),
+      toDbRow(secondOwnedApplication),
+    ]);
 
     const result = await applicationService.getAllApplications();
 
-    expect(result).toEqual([ownedApplication, secondOwnedApplication]);
+    expect(result).toEqual([
+      expect.objectContaining(ownedApplication),
+      expect.objectContaining(secondOwnedApplication),
+    ]);
   });
 
   it("throws when the user is not authenticated", async () => {
@@ -211,11 +231,10 @@ describe("applicationService", () => {
   it("creates a new application for the authenticated user", async () => {
     mockAuthenticatedUser();
 
-    const createdApplication = {
+    const createdApplication = toDbRow({
       id: 3,
       ...newApplication,
-      user_id: authenticatedUserId,
-    };
+    });
 
     const { insertMock } = mockCreateApplication(createdApplication);
 
@@ -247,10 +266,7 @@ describe("applicationService", () => {
       applicationId: ownedApplication.id,
     });
 
-    const savedApplication = {
-      ...updatedApplication,
-      user_id: authenticatedUserId,
-    };
+    const savedApplication = toDbRow(updatedApplication);
 
     mockUpdateApplication(savedApplication);
 
