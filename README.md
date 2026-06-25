@@ -1,109 +1,125 @@
 # JobTracker
 
-A clean, maintainable job application tracking dashboard that demonstrates practical React engineering and real-world frontend architecture patterns.
+A job application tracking dashboard built with React, Vite, Tailwind CSS, and Supabase.
 
-**[Live Demo](https://job-tracker-seven-self.vercel.app)** | **[Getting Started](#getting-started)**
+**[Live Demo](https://job-tracker-seven-self.vercel.app)** | **[Getting Started](#getting-started)** | **[Quality Checks](#quality-checks)**
 
-## Why This Project?
+## Overview
 
-JobTracker showcases:
+JobTracker helps users save and manage job applications in one place. The app includes authentication, protected routes, Supabase-backed persistence, form validation, search/filtering, and a responsive dashboard UI.
 
-- **Clean architecture** with clear separation of concerns across components, hooks, services, utilities, and constants
-- **Scalable patterns** using custom hooks, service abstraction, reusable UI primitives, and shared validation logic
-- **Professional workflows** with structured Git conventions, CI, pre-commit hooks, and incremental development
-- **Practical engineering** focused on maintainability, UX quality, and production-ready frontend patterns
+This repository is intended to demonstrate practical frontend engineering habits: clear component boundaries, incremental refactoring, focused tests, database migrations, and a maintainable project structure.
+
+## Engineering Highlights
+
+- **Authenticated user flows** with Supabase Auth and protected dashboard routes
+- **Supabase persistence** with Row Level Security so users can only access their own applications
+- **Service layer** that maps between app-facing camelCase models and database snake_case rows
+- **Reusable UI primitives** for form fields, modals, cards, empty states, and layout structure
+- **Focused validation and utility tests** for application data, website normalization, and service behavior
+- **Quality workflow** with ESLint, Vitest, GitHub Actions, Husky, and lint-staged
+- **Incremental Git history** using focused branches, conventional commits, and PR-based changes
 
 ## Tech Stack
 
-**Framework**: React | **Build Tool**: Vite | **Styling**: Tailwind CSS | **Icons**: Lucide React | **Persistence**: Supabase
-
-**Testing**: Vitest | React Testing Library
-**Quality Tools**: ESLint | Husky | lint-staged | GitHub Actions
+| Area | Tools |
+| --- | --- |
+| Frontend | React, Vite |
+| Styling | Tailwind CSS |
+| Routing | React Router |
+| Backend services | Supabase Auth, Supabase Database |
+| Testing | Vitest, React Testing Library |
+| Quality | ESLint, Husky, lint-staged, GitHub Actions |
+| Icons | Lucide React |
 
 ## Getting Started
 
 ```bash
-# Clone and setup
 git clone https://github.com/simbongile-mkhotheli/JobTracker.git
 cd JobTracker
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see it in action.
+Visit `http://localhost:5173` after the dev server starts.
 
 ## Environment Variables
 
-Create a `.env.local` file in the root:
+Create a `.env.local` file in the project root:
 
 ```env
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-## Architecture
+Restart the dev server after changing environment variables.
+
+## Project Structure
 
 ```txt
 src/
-├── App.jsx              # Root component
-├── main.jsx             # Entry point
-├── components/          # Reusable UI components
-│   ├── ui/              # Shared UI primitives
-│   └── form/            # Reusable form fields
-├── pages/               # Page-level components
-├── hooks/               # Custom React hooks
-├── services/            # Supabase data access
-├── constants/           # Shared configuration and validation rules
-├── utils/               # Helper functions and business logic
-├── layouts/             # Layout wrappers
-├── data/                # Seed data
-├── lib/                 # Supabase client setup
-└── test/                # Test setup
+|-- App.jsx              # Root route configuration
+|-- main.jsx             # React entry point
+|-- components/          # Reusable UI and feature components
+|   |-- auth/            # Auth-related route guards
+|   `-- ui/              # Shared UI primitives
+|-- contexts/            # React context providers
+|-- hooks/               # Custom React hooks
+|-- layouts/             # Page layout wrappers
+|-- lib/                 # Third-party client setup
+|-- pages/               # Route-level screens
+|-- services/            # Supabase data access
+|-- styles/              # Shared style constants
+|-- test/                # Test setup
+|-- utils/               # Validation and business helpers
+`-- constants/           # Shared app constants
 ```
 
-**Key patterns**:
+## Architecture Notes
 
-- Custom hooks (`useApplications`) encapsulate state management
-- Service layer handles backend persistence
-- Components stay focused on rendering and interaction
-- Constants centralize shared values and validation rules
-- Utilities isolate reusable business logic
-- Tests focus on critical behavior, not implementation details
+- `useApplications` owns dashboard state and coordinates application CRUD actions.
+- `applicationService` isolates Supabase queries and handles database-to-app model mapping.
+- Form validation lives in shared utilities so it can be tested outside the UI.
+- Supabase migrations document the database contract and RLS ownership rules.
+- Components are kept mostly presentational, with data access pushed into hooks and services.
 
 ## Database Schema
 
-The application's database contract is documented in:
+The application database contract is documented in:
 
 - `docs/supabase-schema.md`
 - `supabase/migrations/20260616_000001_jobtracker_schema.sql`
 - `supabase/migrations/20260616_000002_normalize_applications_schema.sql`
 
-The `applications` table uses Row Level Security so users can only access their own records.
+The `applications` table uses Row Level Security policies so authenticated users can only read and mutate their own records.
 
-## Testing
+## Quality Checks
 
-Run tests:
+Run the main local checks before opening a PR:
 
 ```bash
-npm run test
+npm test -- --run
+npm run lint
+npm run build
 ```
 
-Current coverage focuses on:
+Current automated coverage focuses on:
 
 - Application service behavior
-- Website normalization
 - Application validation
+- Website normalization and helper logic
+- Filtering and statistics utilities
 
 ## Contributing
 
-We follow structured Git workflows focused on maintainability:
+This project follows a lightweight PR workflow:
 
-Branches: feature/_, fix/_, refactor/_, chore/_ — descriptive and focused
-Commits: Conventional format (feat:, fix:, refactor:, chore:, test:, docs:)
-PRs: Single concern, clear summary, notes, and linked issues
+- Branches use focused prefixes such as `feature/`, `fix/`, `refactor/`, `test/`, and `docs/`
+- Commits use conventional messages such as `feat:`, `fix:`, `refactor:`, `test:`, and `docs:`
+- Pull requests should solve one clear problem and include verification notes
 
-See CONTRIBUTING.md for detailed guidelines.
+See `CONTRIBUTING.md` for the full workflow.
 
-MIT License
+## License
+
+MIT
