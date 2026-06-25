@@ -1,6 +1,16 @@
 import { supabase } from "../lib/supabase";
+import type {
+  Application,
+  ApplicationDbPayload,
+  ApplicationId,
+  ApplicationRow,
+  ApplicationUpdate,
+  NewApplication,
+} from "../types/application";
 
-function toDbPayload(application) {
+function toDbPayload(
+  application: NewApplication | ApplicationUpdate,
+): ApplicationDbPayload {
   return {
     company: application.company,
     role: application.role,
@@ -12,12 +22,12 @@ function toDbPayload(application) {
   };
 }
 
-function toAppModel(row) {
+function toAppModel(row: ApplicationRow): Application {
   return {
     id: row.id,
     company: row.company,
     role: row.role,
-    website: row.website,
+    website: row.website ?? "",
     logoUrl: row.logo_url ?? "",
     dateApplied: row.date_applied ?? "",
     status: row.status,
@@ -27,7 +37,7 @@ function toAppModel(row) {
   };
 }
 
-async function getCurrentUserId() {
+async function getCurrentUserId(): Promise<string> {
   const { data, error } = await supabase.auth.getUser();
 
   if (error) {
@@ -43,7 +53,10 @@ async function getCurrentUserId() {
   return userId;
 }
 
-async function ensureApplicationOwnership(id, userId) {
+async function ensureApplicationOwnership(
+  id: ApplicationId,
+  userId: string,
+): Promise<void> {
   const { data, error } = await supabase
     .from("applications")
     .select("id")
@@ -59,7 +72,7 @@ async function ensureApplicationOwnership(id, userId) {
   }
 }
 
-async function getAllApplications() {
+async function getAllApplications(): Promise<Application[]> {
   const userId = await getCurrentUserId();
 
   const { data, error } = await supabase
@@ -72,10 +85,12 @@ async function getAllApplications() {
     throw new Error(error.message);
   }
 
-  return (data ?? []).map(toAppModel);
+  return ((data ?? []) as ApplicationRow[]).map(toAppModel);
 }
 
-async function createApplication(application) {
+async function createApplication(
+  application: NewApplication,
+): Promise<Application> {
   const userId = await getCurrentUserId();
 
   const { data, error } = await supabase
@@ -93,10 +108,12 @@ async function createApplication(application) {
     throw new Error(error.message);
   }
 
-  return toAppModel(data);
+  return toAppModel(data as ApplicationRow);
 }
 
-async function updateApplication(updatedApplication) {
+async function updateApplication(
+  updatedApplication: ApplicationUpdate,
+): Promise<Application> {
   const userId = await getCurrentUserId();
 
   await ensureApplicationOwnership(updatedApplication.id, userId);
@@ -113,10 +130,10 @@ async function updateApplication(updatedApplication) {
     throw new Error(error.message);
   }
 
-  return toAppModel(data);
+  return toAppModel(data as ApplicationRow);
 }
 
-async function deleteApplication(id) {
+async function deleteApplication(id: ApplicationId): Promise<void> {
   const userId = await getCurrentUserId();
 
   await ensureApplicationOwnership(id, userId);

@@ -1,4 +1,11 @@
-export function calculateApplicationStats(applications) {
+import type {
+  Application,
+  ApplicationStats,
+} from "../types/application";
+
+export function calculateApplicationStats(
+  applications: Application[],
+): ApplicationStats {
   const total = applications.length;
 
   const interviews = applications.filter(

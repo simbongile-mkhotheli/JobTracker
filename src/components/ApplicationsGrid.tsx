@@ -1,6 +1,21 @@
 import { ApplicationCard } from "./ApplicationCard";
 import { EmptyState } from "./EmptyState";
 import { SkeletonCard } from "./SkeletonCard";
+import type {
+  Application,
+  ApplicationId,
+} from "../types/application";
+
+interface ApplicationsGridProps {
+  applications: Application[];
+  onDelete: (id: ApplicationId) => void | Promise<void>;
+  onEdit: (application: Application) => void;
+  onOpenNotes: (application: Application) => void;
+  onAddNew: () => void;
+  onClearSearch: () => void;
+  isLoading?: boolean;
+  searchTerm?: string;
+}
 
 export function ApplicationsGrid({
   applications,
@@ -11,7 +26,7 @@ export function ApplicationsGrid({
   onClearSearch,
   isLoading = false,
   searchTerm = "",
-}) {
+}: ApplicationsGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">

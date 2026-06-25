@@ -1,7 +1,12 @@
+import type {
+  Application,
+  ApplicationStatusFilter,
+} from "../types/application";
+
 export function filterApplications(
-  applications,
-  searchTerm,
-  statusFilter,
+  applications: Application[],
+  searchTerm: string,
+  statusFilter: ApplicationStatusFilter,
 ) {
   return applications.filter((application) => {
     const matchesSearch =

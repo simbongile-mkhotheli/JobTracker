@@ -1,5 +1,16 @@
 import { INPUT_STYLE } from "../../constants";
 
+/**
+ * @param {{
+ *   id: string;
+ *   name: string;
+ *   label: string;
+ *   value: string;
+ *   onChange: (event: import("react").ChangeEvent<HTMLSelectElement>) => void;
+ *   options?: readonly string[];
+ *   error?: string;
+ * }} props
+ */
 export function SelectField({
   id,
   name,
