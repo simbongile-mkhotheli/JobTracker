@@ -8,7 +8,7 @@ import type {
 
 interface ApplicationsGridProps {
   applications: Application[];
-  onDelete: (id: ApplicationId) => void | Promise<void>;
+  onDelete: (id: ApplicationId) => boolean | Promise<boolean>;
   onEdit: (application: Application) => void;
   onOpenNotes: (application: Application) => void;
   onAddNew: () => void;

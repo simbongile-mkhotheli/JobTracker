@@ -38,18 +38,28 @@ export default function Dashboard() {
 
   async function handleSubmit(applicationData: ApplicationFormValues) {
     if (editingApplication) {
-      await updateApplication({
+      const wasUpdated = await updateApplication({
         ...applicationData,
         id: editingApplication.id,
       });
 
+      if (!wasUpdated) {
+        return false;
+      }
+
       setEditingApplication(null);
       setIsFormOpen(false);
-      return;
+      return true;
     }
 
-    await addApplication(applicationData);
+    const wasCreated = await addApplication(applicationData);
+
+    if (!wasCreated) {
+      return false;
+    }
+
     setIsFormOpen(false);
+    return true;
   }
 
   function handleOpenCreateModal() {
@@ -177,6 +187,7 @@ export default function Dashboard() {
                 : "Add Application"
             }
             isLoading={isLoading}
+            submitError={error}
           />
         </Modal>
       )}
