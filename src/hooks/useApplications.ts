@@ -41,7 +41,7 @@ export function useApplications() {
     loadApplications();
   }, []);
 
-  async function addApplication(application: NewApplication) {
+  async function addApplication(application: NewApplication): Promise<boolean> {
     try {
       setIsLoading(true);
       setError(null);
@@ -53,15 +53,20 @@ export function useApplications() {
         createdApplication,
         ...currentApplications,
       ]);
+
+      return true;
     } catch (err) {
       console.error(err);
       setError("Failed to create application.");
+      return false;
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function updateApplication(updatedApplication: ApplicationUpdate) {
+  async function updateApplication(
+    updatedApplication: ApplicationUpdate,
+  ): Promise<boolean> {
     try {
       setIsLoading(true);
       setError(null);
@@ -76,15 +81,18 @@ export function useApplications() {
             : application,
         ),
       );
+
+      return true;
     } catch (err) {
       console.error(err);
       setError("Failed to update application.");
+      return false;
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function deleteApplication(id: ApplicationId) {
+  async function deleteApplication(id: ApplicationId): Promise<boolean> {
     try {
       setIsLoading(true);
       setError(null);
@@ -94,9 +102,12 @@ export function useApplications() {
       setApplications((currentApplications) =>
         currentApplications.filter((application) => application.id !== id),
       );
+
+      return true;
     } catch (err) {
       console.error(err);
       setError("Failed to delete application.");
+      return false;
     } finally {
       setIsLoading(false);
     }

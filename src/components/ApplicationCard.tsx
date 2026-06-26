@@ -15,7 +15,7 @@ import type {
 
 interface ApplicationCardProps {
   application: Application;
-  onDelete: (id: ApplicationId) => void | Promise<void>;
+  onDelete: (id: ApplicationId) => boolean | Promise<boolean>;
   onEdit: (application: Application) => void;
   onOpenNotes: (application: Application) => void;
 }

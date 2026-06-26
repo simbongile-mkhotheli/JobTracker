@@ -23,10 +23,11 @@ type ApplicationFormErrors = Partial<
 >;
 
 interface ApplicationFormProps {
-  onSubmit: (application: ApplicationFormValues) => void | Promise<void>;
+  onSubmit: (application: ApplicationFormValues) => boolean | Promise<boolean>;
   initialValues?: ApplicationFormValues | Application;
   submitLabel?: string;
   isLoading?: boolean;
+  submitError?: string | null;
 }
 
 export function ApplicationForm({
@@ -34,6 +35,7 @@ export function ApplicationForm({
   initialValues = INITIAL_APPLICATION,
   submitLabel = "Add Application",
   isLoading = false,
+  submitError = null,
 }: ApplicationFormProps) {
   const [formData, setFormData] = useState<ApplicationFormValues>({
     ...INITIAL_APPLICATION,
@@ -93,7 +95,7 @@ export function ApplicationForm({
     }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const validationErrors = validateApplicationForm({
@@ -107,13 +109,17 @@ export function ApplicationForm({
       return;
     }
 
-    onSubmit({
+    const wasSubmitted = await onSubmit({
       ...formData,
       company: formData.company.trim(),
       role: formData.role.trim(),
       notes: formData.notes.trim(),
       website: normalizeWebsite(formData.website),
     });
+
+    if (!wasSubmitted) {
+      return;
+    }
 
     setFormData(INITIAL_APPLICATION);
     setErrors({});
@@ -197,6 +203,15 @@ export function ApplicationForm({
           />
         </div>
       </div>
+
+      {submitError ? (
+        <div
+          role="alert"
+          className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-sm text-rose-300"
+        >
+          {submitError}
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <button
