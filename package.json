@@ -14,7 +14,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
+    "*.{js,jsx,ts,tsx}": [
       "eslint --fix"
     ]
   },
@@ -44,6 +44,7 @@
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.5",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1",
     "vite": "^8.0.10",
     "vitest": "^4.1.6"
   }

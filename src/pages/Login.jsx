@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -17,15 +17,18 @@ export default function Login() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const redirectTo = location.state?.from?.pathname || "/";
 
-  async function handleSignIn(nextEmail, nextPassword) {
+  const handleSignIn = useCallback(async function handleSignIn(
+    nextEmail,
+    nextPassword,
+  ) {
     setIsLoading(true);
     setError("");
 
     try {
       await signIn(nextEmail, nextPassword);
 
-      const redirectTo = location.state?.from?.pathname || "/";
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.message || "Failed to sign in.");
@@ -33,7 +36,7 @@ export default function Login() {
       setIsLoading(false);
       setIsAutoSigningIn(false);
     }
-  }
+  }, [navigate, redirectTo, signIn]);
 
   function fillDemoCredentials() {
     setEmail(DEMO_CREDENTIALS.email);
@@ -53,7 +56,7 @@ export default function Login() {
     }, 800);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [handleSignIn]);
 
   async function handleSubmit(event) {
     event.preventDefault();

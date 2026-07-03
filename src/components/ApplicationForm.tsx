@@ -95,9 +95,13 @@ export function ApplicationForm({
     }));
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    void submitApplication();
+  }
+
+  async function submitApplication() {
     const validationErrors = validateApplicationForm({
       ...formData,
       normalizedDomain,

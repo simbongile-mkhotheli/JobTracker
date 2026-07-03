@@ -6,7 +6,6 @@ import { UI_STYLES } from "../styles/ui";
 import {
   formatDate,
   getInitials,
-  getLogoSrc,
 } from "../utils/applicationHelpers";
 import type {
   Application,
@@ -28,7 +27,7 @@ export function ApplicationCard({
 }: ApplicationCardProps) {
   const { id, company, role, status, dateApplied, notes } = application;
 
-  const logoSrc = getLogoSrc(application);
+  const logoSrc = application.logoUrl || null;
 
   const initials = getInitials(company);
 
@@ -119,7 +118,9 @@ export function ApplicationCard({
 
             <button
               type="button"
-              onClick={() => onDelete(id)}
+              onClick={() => {
+                void onDelete(id);
+              }}
               aria-label={`Delete ${company}`}
               className="
                 grid h-10 w-10 shrink-0 place-items-center
