@@ -38,7 +38,7 @@ export function useApplications() {
       }
     }
 
-    loadApplications();
+    void loadApplications();
   }, []);
 
   async function addApplication(application: NewApplication): Promise<boolean> {

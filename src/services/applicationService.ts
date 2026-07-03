@@ -1,5 +1,9 @@
 import { supabase } from "../lib/supabase";
 import type {
+  PostgrestResponse,
+  PostgrestSingleResponse,
+} from "@supabase/supabase-js";
+import type {
   Application,
   ApplicationDbPayload,
   ApplicationId,
@@ -37,6 +41,16 @@ function toAppModel(row: ApplicationRow): Application {
   };
 }
 
+function asPostgrestResponse<T>(response: unknown): PostgrestResponse<T> {
+  return response as PostgrestResponse<T>;
+}
+
+function asPostgrestSingleResponse<T>(
+  response: unknown,
+): PostgrestSingleResponse<T> {
+  return response as PostgrestSingleResponse<T>;
+}
+
 async function getCurrentUserId(): Promise<string> {
   const { data, error } = await supabase.auth.getUser();
 
@@ -57,11 +71,13 @@ async function ensureApplicationOwnership(
   id: ApplicationId,
   userId: string,
 ): Promise<void> {
-  const { data, error } = await supabase
-    .from("applications")
-    .select("id")
-    .eq("id", id)
-    .eq("user_id", userId);
+  const { data, error } = asPostgrestResponse<Pick<ApplicationRow, "id">>(
+    await supabase
+      .from("applications")
+      .select("id")
+      .eq("id", id)
+      .eq("user_id", userId),
+  );
 
   if (error) {
     throw new Error(error.message);
@@ -75,17 +91,19 @@ async function ensureApplicationOwnership(
 async function getAllApplications(): Promise<Application[]> {
   const userId = await getCurrentUserId();
 
-  const { data, error } = await supabase
-    .from("applications")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+  const { data, error } = asPostgrestResponse<ApplicationRow>(
+    await supabase
+      .from("applications")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false }),
+  );
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return ((data ?? []) as ApplicationRow[]).map(toAppModel);
+  return (data ?? []).map(toAppModel);
 }
 
 async function createApplication(
@@ -93,22 +111,24 @@ async function createApplication(
 ): Promise<Application> {
   const userId = await getCurrentUserId();
 
-  const { data, error } = await supabase
-    .from("applications")
-    .insert([
-      {
-        ...toDbPayload(application),
-        user_id: userId,
-      },
-    ])
-    .select("*")
-    .single();
+  const { data, error } = asPostgrestSingleResponse<ApplicationRow>(
+    await supabase
+      .from("applications")
+      .insert([
+        {
+          ...toDbPayload(application),
+          user_id: userId,
+        },
+      ])
+      .select("*")
+      .single(),
+  );
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return toAppModel(data as ApplicationRow);
+  return toAppModel(data);
 }
 
 async function updateApplication(
@@ -118,19 +138,21 @@ async function updateApplication(
 
   await ensureApplicationOwnership(updatedApplication.id, userId);
 
-  const { data, error } = await supabase
-    .from("applications")
-    .update(toDbPayload(updatedApplication))
-    .eq("id", updatedApplication.id)
-    .eq("user_id", userId)
-    .select("*")
-    .single();
+  const { data, error } = asPostgrestSingleResponse<ApplicationRow>(
+    await supabase
+      .from("applications")
+      .update(toDbPayload(updatedApplication))
+      .eq("id", updatedApplication.id)
+      .eq("user_id", userId)
+      .select("*")
+      .single(),
+  );
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return toAppModel(data as ApplicationRow);
+  return toAppModel(data);
 }
 
 async function deleteApplication(id: ApplicationId): Promise<void> {
