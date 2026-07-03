@@ -19,24 +19,24 @@ export default function Login() {
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname || "/";
 
-  const handleSignIn = useCallback(async function handleSignIn(
-    nextEmail,
-    nextPassword,
-  ) {
-    setIsLoading(true);
-    setError("");
+  const handleSignIn = useCallback(
+    async function handleSignIn(nextEmail, nextPassword) {
+      setIsLoading(true);
+      setError("");
 
-    try {
-      await signIn(nextEmail, nextPassword);
+      try {
+        await signIn(nextEmail, nextPassword);
 
-      navigate(redirectTo, { replace: true });
-    } catch (err) {
-      setError(err.message || "Failed to sign in.");
-    } finally {
-      setIsLoading(false);
-      setIsAutoSigningIn(false);
-    }
-  }, [navigate, redirectTo, signIn]);
+        navigate(redirectTo, { replace: true });
+      } catch (err) {
+        setError(err.message || "Failed to sign in.");
+      } finally {
+        setIsLoading(false);
+        setIsAutoSigningIn(false);
+      }
+    },
+    [navigate, redirectTo, signIn],
+  );
 
   function fillDemoCredentials() {
     setEmail(DEMO_CREDENTIALS.email);
@@ -49,10 +49,7 @@ export default function Login() {
       setIsAutoSigningIn(true);
       setEmail(DEMO_CREDENTIALS.email);
       setPassword(DEMO_CREDENTIALS.password);
-      void handleSignIn(
-        DEMO_CREDENTIALS.email,
-        DEMO_CREDENTIALS.password,
-      );
+      void handleSignIn(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
     }, 800);
 
     return () => window.clearTimeout(timer);
@@ -140,9 +137,7 @@ export default function Login() {
             disabled={isLoading || isAutoSigningIn}
             className="h-11 w-full rounded-xl bg-indigo-600 px-5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isAutoSigningIn || isLoading
-              ? "Signing in..."
-              : "Sign in"}
+            {isAutoSigningIn || isLoading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 

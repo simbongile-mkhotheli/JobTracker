@@ -16,13 +16,9 @@ export function EmptyState({
           <Icon size={22} />
         </div>
 
-        <h3 className="mt-4 text-lg font-semibold text-white">
-          {title}
-        </h3>
+        <h3 className="mt-4 text-lg font-semibold text-white">{title}</h3>
 
-        <p className="mt-2 text-sm leading-6 text-slate-400">
-          {description}
-        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
 
         {onAction && actionLabel ? (
           <button

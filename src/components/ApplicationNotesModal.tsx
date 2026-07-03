@@ -26,9 +26,7 @@ export function ApplicationNotesModal({
               {application.company}
             </h2>
 
-            <p className="mt-1 text-sm text-slate-400">
-              {application.role}
-            </p>
+            <p className="mt-1 text-sm text-slate-400">{application.role}</p>
           </div>
 
           <button
@@ -41,9 +39,7 @@ export function ApplicationNotesModal({
         </div>
 
         <div className="relative z-10 p-6">
-          <h3 className="mb-3 text-sm font-medium text-slate-300">
-            Notes
-          </h3>
+          <h3 className="mb-3 text-sm font-medium text-slate-300">Notes</h3>
 
           <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-7 text-slate-300">
             {application.notes || "No notes added."}

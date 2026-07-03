@@ -5,16 +5,13 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 
 export function DashboardLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#070d1a] text-white">
       <Sidebar
         isOpen={sidebarOpen}
-        onToggle={() =>
-          setSidebarOpen(!sidebarOpen)
-        }
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
       />
 
       <main
@@ -34,9 +31,7 @@ export function DashboardLayout({ children }) {
         >
           <Header />
 
-          <div className="mt-6 flex-1">
-            {children}
-          </div>
+          <div className="mt-6 flex-1">{children}</div>
 
           <Footer />
         </div>

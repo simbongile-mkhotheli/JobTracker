@@ -13,10 +13,7 @@ import {
 import { InputField } from "./ui/InputField";
 import { SelectField } from "./ui/SelectField";
 import { TextareaField } from "./ui/TextareaField";
-import type {
-  Application,
-  ApplicationFormValues,
-} from "../types/application";
+import type { Application, ApplicationFormValues } from "../types/application";
 
 type ApplicationFormErrors = Partial<
   Record<keyof ApplicationFormValues, string>

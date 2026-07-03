@@ -22,15 +22,15 @@ This repository is intended to demonstrate practical frontend engineering habits
 
 ## Tech Stack
 
-| Area | Tools |
-| --- | --- |
-| Frontend | React, Vite |
-| Styling | Tailwind CSS |
-| Routing | React Router |
-| Backend services | Supabase Auth, Supabase Database |
-| Testing | Vitest, React Testing Library |
-| Quality | ESLint, Husky, lint-staged, GitHub Actions |
-| Icons | Lucide React |
+| Area             | Tools                                      |
+| ---------------- | ------------------------------------------ |
+| Frontend         | React, Vite                                |
+| Styling          | Tailwind CSS                               |
+| Routing          | React Router                               |
+| Backend services | Supabase Auth, Supabase Database           |
+| Testing          | Vitest, React Testing Library              |
+| Quality          | ESLint, Husky, lint-staged, GitHub Actions |
+| Icons            | Lucide React                               |
 
 ## Getting Started
 

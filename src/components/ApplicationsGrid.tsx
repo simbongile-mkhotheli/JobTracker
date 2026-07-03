@@ -1,10 +1,7 @@
 import { ApplicationCard } from "./ApplicationCard";
 import { EmptyState } from "./EmptyState";
 import { SkeletonCard } from "./SkeletonCard";
-import type {
-  Application,
-  ApplicationId,
-} from "../types/application";
+import type { Application, ApplicationId } from "../types/application";
 
 interface ApplicationsGridProps {
   applications: Application[];
@@ -44,18 +41,14 @@ export function ApplicationsGrid({
       <EmptyState
         variant={isSearchEmpty ? "search" : "default"}
         title={
-          isSearchEmpty
-            ? "No matching applications"
-            : "No applications yet"
+          isSearchEmpty ? "No matching applications" : "No applications yet"
         }
         description={
           isSearchEmpty
             ? "Try a different search term or clear your filters."
             : "Add your first application to start tracking progress."
         }
-        actionLabel={
-          isSearchEmpty ? "Clear Search" : "Add Application"
-        }
+        actionLabel={isSearchEmpty ? "Clear Search" : "Add Application"}
         onAction={isSearchEmpty ? onClearSearch : onAddNew}
       />
     );

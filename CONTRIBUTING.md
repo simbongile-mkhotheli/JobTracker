@@ -77,17 +77,21 @@ Each PR should:
 
 ```md
 ## Summary
+
 Short explanation of the change.
 
 ## Changes
+
 - Added...
 - Updated...
 - Refactored...
 
 ## Notes
+
 Additional implementation details.
 
 ## Linked Issues
+
 Closes #issue-number
 ```
 
@@ -133,4 +137,7 @@ JobTracker prioritizes:
 - Incremental improvements
 - Practical frontend engineering
 - Consistent Git workflows
+
+```
+
 ```

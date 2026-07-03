@@ -10,16 +10,11 @@ export function filterApplications(
 ) {
   return applications.filter((application) => {
     const matchesSearch =
-      application.company
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      application.role
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+      application.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      application.role.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
-      statusFilter === "All" ||
-      application.status === statusFilter;
+      statusFilter === "All" || application.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
