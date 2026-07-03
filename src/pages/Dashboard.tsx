@@ -8,10 +8,7 @@ import { SearchBar } from "../components/SearchBar";
 import { StatsCards } from "../components/StatsCards";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { useApplications } from "../hooks/useApplications";
-import type {
-  Application,
-  ApplicationFormValues,
-} from "../types/application";
+import type { Application, ApplicationFormValues } from "../types/application";
 
 export default function Dashboard() {
   const [editingApplication, setEditingApplication] =
@@ -167,9 +164,7 @@ export default function Dashboard() {
       {isFormOpen && (
         <Modal
           title={
-            editingApplication
-              ? "Edit Application"
-              : "Track New Opportunity"
+            editingApplication ? "Edit Application" : "Track New Opportunity"
           }
           description={
             editingApplication
@@ -182,9 +177,7 @@ export default function Dashboard() {
             onSubmit={handleSubmit}
             initialValues={editingApplication || undefined}
             submitLabel={
-              editingApplication
-                ? "Save Changes"
-                : "Add Application"
+              editingApplication ? "Save Changes" : "Add Application"
             }
             isLoading={isLoading}
             submitError={error}

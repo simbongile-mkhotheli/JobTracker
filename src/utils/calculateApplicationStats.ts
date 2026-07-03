@@ -1,7 +1,4 @@
-import type {
-  Application,
-  ApplicationStats,
-} from "../types/application";
+import type { Application, ApplicationStats } from "../types/application";
 
 export function calculateApplicationStats(
   applications: Application[],

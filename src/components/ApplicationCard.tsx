@@ -3,14 +3,8 @@ import { Calendar, FileText, PencilLine, Trash2 } from "lucide-react";
 import { STATUS_STYLES } from "../constants";
 import { UI_STYLES } from "../styles/ui";
 
-import {
-  formatDate,
-  getInitials,
-} from "../utils/applicationHelpers";
-import type {
-  Application,
-  ApplicationId,
-} from "../types/application";
+import { formatDate, getInitials } from "../utils/applicationHelpers";
+import type { Application, ApplicationId } from "../types/application";
 
 interface ApplicationCardProps {
   application: Application;

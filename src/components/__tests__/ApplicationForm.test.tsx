@@ -28,9 +28,7 @@ describe("ApplicationForm", () => {
       />,
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "Add Application" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Add Application" }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(screen.getByLabelText(/^Company$/)).toHaveValue("Boxfusion");
@@ -48,15 +46,10 @@ describe("ApplicationForm", () => {
     const onSubmit = vi.fn().mockResolvedValue(true);
 
     render(
-      <ApplicationForm
-        initialValues={validApplication}
-        onSubmit={onSubmit}
-      />,
+      <ApplicationForm initialValues={validApplication} onSubmit={onSubmit} />,
     );
 
-    await user.click(
-      screen.getByRole("button", { name: "Add Application" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Add Application" }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(screen.getByLabelText(/^Company$/)).toHaveValue("");

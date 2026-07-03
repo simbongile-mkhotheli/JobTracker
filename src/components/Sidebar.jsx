@@ -63,13 +63,15 @@ function NavItem({ icon: Icon, label, active = false }) {
 function getInitials(email = "") {
   if (!email) return "U";
 
-  return email
-    .split("@")[0]
-    .split(".")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("") || "U";
+  return (
+    email
+      .split("@")[0]
+      .split(".")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "U"
+  );
 }
 
 export function Sidebar({ isOpen = true, onToggle = () => {} }) {
@@ -149,7 +151,11 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
                     {getInitials(user.email)}
                   </span>
                 ) : (
-                  <UserCircle2 size={28} strokeWidth={1.8} className="text-slate-100" />
+                  <UserCircle2
+                    size={28}
+                    strokeWidth={1.8}
+                    className="text-slate-100"
+                  />
                 )}
               </div>
 

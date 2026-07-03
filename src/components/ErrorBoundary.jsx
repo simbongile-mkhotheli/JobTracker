@@ -36,12 +36,11 @@ export class ErrorBoundary extends Component {
       return (
         <div className="flex min-h-screen items-center justify-center bg-[#070d1a] p-4 text-white">
           <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h1 className="text-xl font-semibold">
-              Something went wrong
-            </h1>
+            <h1 className="text-xl font-semibold">Something went wrong</h1>
 
             <p className="mt-2 text-sm text-slate-400">
-              The app hit an unexpected error. You can try reloading or reset the UI.
+              The app hit an unexpected error. You can try reloading or reset
+              the UI.
             </p>
 
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-end">
