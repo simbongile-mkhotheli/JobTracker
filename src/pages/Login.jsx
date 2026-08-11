@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import {
+  getAuthErrorDiagnostics,
+  getAuthUserMessage,
+  isExpectedAuthError,
+} from "../utils/authErrors";
 
 const DEMO_CREDENTIALS = {
   email: "admin@admin.com",
@@ -29,7 +34,14 @@ export default function Login() {
 
         navigate(redirectTo, { replace: true });
       } catch (err) {
-        setError(err.message || "Failed to sign in.");
+        if (!isExpectedAuthError(err, "signIn")) {
+          console.error(
+            "Unexpected sign-in failure:",
+            getAuthErrorDiagnostics(err, "signIn"),
+          );
+        }
+
+        setError(getAuthUserMessage(err, "signIn"));
       } finally {
         setIsLoading(false);
         setIsAutoSigningIn(false);

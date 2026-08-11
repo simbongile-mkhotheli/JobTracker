@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { applicationService } from "../services/applicationService";
+import {
+  ApplicationServiceError,
+  applicationService,
+} from "../services/applicationService";
 import { filterApplications } from "../utils/filterApplications";
 import { calculateApplicationStats } from "../utils/calculateApplicationStats";
 import type {
@@ -10,6 +13,37 @@ import type {
   ApplicationUpdate,
   NewApplication,
 } from "../types/application";
+
+function getApplicationErrorDiagnostics(err: unknown) {
+  if (err instanceof ApplicationServiceError) {
+    return {
+      operation: err.operation,
+      applicationId: err.applicationId,
+      message: err.message,
+      code: err.code,
+      details: err.details,
+      hint: err.hint,
+      originalError: err.originalError,
+    };
+  }
+
+  if (err instanceof Error) {
+    return {
+      name: err.name,
+      message: err.message,
+      originalError: err,
+    };
+  }
+
+  return {
+    message: "Non-Error value thrown.",
+    originalError: err,
+  };
+}
+
+function logApplicationError(action: string, err: unknown) {
+  console.error(`Failed to ${action}:`, getApplicationErrorDiagnostics(err));
+}
 
 export function useApplications() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -30,7 +64,7 @@ export function useApplications() {
         const data = await applicationService.getAllApplications();
         setApplications(data);
       } catch (err) {
-        console.error(err);
+        logApplicationError("load applications", err);
         setError("Failed to load applications.");
         setApplications([]);
       } finally {
@@ -56,7 +90,7 @@ export function useApplications() {
 
       return true;
     } catch (err) {
-      console.error(err);
+      logApplicationError("create application", err);
       setError("Failed to create application.");
       return false;
     } finally {
@@ -84,7 +118,7 @@ export function useApplications() {
 
       return true;
     } catch (err) {
-      console.error(err);
+      logApplicationError("update application", err);
       setError("Failed to update application.");
       return false;
     } finally {
@@ -105,7 +139,7 @@ export function useApplications() {
 
       return true;
     } catch (err) {
-      console.error(err);
+      logApplicationError("delete application", err);
       setError("Failed to delete application.");
       return false;
     } finally {
