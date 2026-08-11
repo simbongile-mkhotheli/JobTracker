@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import {
+  getAuthErrorDiagnostics,
+  getAuthUserMessage,
+  isExpectedAuthError,
+} from "../utils/authErrors";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -28,7 +33,14 @@ export default function Signup() {
 
       setMessage("Account created. Check your email to confirm your signup.");
     } catch (err) {
-      setError(err.message || "Failed to sign up.");
+      if (!isExpectedAuthError(err, "signUp")) {
+        console.error(
+          "Unexpected sign-up failure:",
+          getAuthErrorDiagnostics(err, "signUp"),
+        );
+      }
+
+      setError(getAuthUserMessage(err, "signUp"));
     } finally {
       setIsLoading(false);
     }

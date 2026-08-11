@@ -12,6 +12,56 @@ import type {
   NewApplication,
 } from "../types/application";
 
+type ApplicationServiceOperation =
+  | "getCurrentUser"
+  | "ensureApplicationOwnership"
+  | "getAllApplications"
+  | "createApplication"
+  | "updateApplication"
+  | "deleteApplication";
+
+type ApplicationServiceErrorContext = {
+  operation: ApplicationServiceOperation;
+  applicationId?: ApplicationId;
+};
+
+type SupabaseErrorLike = {
+  message?: string;
+  code?: string;
+  details?: string;
+  hint?: string;
+};
+
+export class ApplicationServiceError extends Error {
+  readonly code?: string;
+  readonly details?: string;
+  readonly hint?: string;
+  readonly operation: ApplicationServiceOperation;
+  readonly applicationId?: ApplicationId;
+  readonly originalError: unknown;
+
+  constructor(
+    error: SupabaseErrorLike,
+    context: ApplicationServiceErrorContext,
+  ) {
+    super(error.message || "Application service request failed.");
+    this.name = "ApplicationServiceError";
+    this.code = error.code;
+    this.details = error.details;
+    this.hint = error.hint;
+    this.operation = context.operation;
+    this.applicationId = context.applicationId;
+    this.originalError = error;
+  }
+}
+
+function throwSupabaseError(
+  error: SupabaseErrorLike,
+  context: ApplicationServiceErrorContext,
+): never {
+  throw new ApplicationServiceError(error, context);
+}
+
 function toDbPayload(
   application: NewApplication | ApplicationUpdate,
 ): ApplicationDbPayload {
@@ -55,7 +105,7 @@ async function getCurrentUserId(): Promise<string> {
   const { data, error } = await supabase.auth.getUser();
 
   if (error) {
-    throw new Error(error.message);
+    throwSupabaseError(error, { operation: "getCurrentUser" });
   }
 
   const userId = data.user?.id;
@@ -80,7 +130,10 @@ async function ensureApplicationOwnership(
   );
 
   if (error) {
-    throw new Error(error.message);
+    throwSupabaseError(error, {
+      operation: "ensureApplicationOwnership",
+      applicationId: id,
+    });
   }
 
   if (!data || data.length === 0) {
@@ -100,7 +153,7 @@ async function getAllApplications(): Promise<Application[]> {
   );
 
   if (error) {
-    throw new Error(error.message);
+    throwSupabaseError(error, { operation: "getAllApplications" });
   }
 
   return (data ?? []).map(toAppModel);
@@ -125,7 +178,7 @@ async function createApplication(
   );
 
   if (error) {
-    throw new Error(error.message);
+    throwSupabaseError(error, { operation: "createApplication" });
   }
 
   return toAppModel(data);
@@ -149,7 +202,10 @@ async function updateApplication(
   );
 
   if (error) {
-    throw new Error(error.message);
+    throwSupabaseError(error, {
+      operation: "updateApplication",
+      applicationId: updatedApplication.id,
+    });
   }
 
   return toAppModel(data);
@@ -167,7 +223,10 @@ async function deleteApplication(id: ApplicationId): Promise<void> {
     .eq("user_id", userId);
 
   if (error) {
-    throw new Error(error.message);
+    throwSupabaseError(error, {
+      operation: "deleteApplication",
+      applicationId: id,
+    });
   }
 }
 

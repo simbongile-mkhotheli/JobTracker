@@ -11,8 +11,13 @@ import {
   X,
   LogOut,
 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import {
+  getAuthErrorDiagnostics,
+  getAuthUserMessage,
+} from "../utils/authErrors";
 
 const navItems = [
   { icon: Home, label: "Dashboard", active: true },
@@ -77,10 +82,21 @@ function getInitials(email = "") {
 export function Sidebar({ isOpen = true, onToggle = () => {} }) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const [logoutError, setLogoutError] = useState("");
 
   async function handleLogout() {
-    await signOut();
-    navigate("/login", { replace: true });
+    setLogoutError("");
+
+    try {
+      await signOut();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      console.error(
+        "Failed to sign out:",
+        getAuthErrorDiagnostics(err, "signOut"),
+      );
+      setLogoutError(getAuthUserMessage(err, "signOut"));
+    }
   }
 
   return (
@@ -177,6 +193,12 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
               <LogOut size={16} />
               Sign out
             </button>
+
+            {logoutError ? (
+              <p className="mt-3 text-sm text-rose-300" role="alert">
+                {logoutError}
+              </p>
+            ) : null}
           </div>
         </div>
       </aside>
