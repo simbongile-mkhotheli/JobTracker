@@ -38,6 +38,11 @@ This repository is intended to demonstrate practical frontend engineering habits
 git clone https://github.com/simbongile-mkhotheli/JobTracker.git
 cd JobTracker
 npm install
+```
+
+Create `.env.local` using the variables below, then start the dev server:
+
+```bash
 npm run dev
 ```
 
@@ -51,6 +56,8 @@ Create a `.env.local` file in the project root:
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
+
+Use the Supabase project URL for `VITE_SUPABASE_URL` such as `https://your-project-id.supabase.co`, not the `/rest/v1/` endpoint.
 
 Restart the dev server after changing environment variables.
 
