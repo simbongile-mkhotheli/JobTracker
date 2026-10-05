@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Calendar, FileText, PencilLine, Trash2 } from "lucide-react";
 
 import { STATUS_STYLES } from "../constants";
@@ -19,11 +20,21 @@ export function ApplicationCard({
   onEdit,
   onOpenNotes,
 }: ApplicationCardProps) {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
   const { id, company, role, status, dateApplied, notes } = application;
 
   const logoSrc = application.logoUrl || null;
 
   const initials = getInitials(company);
+
+  async function handleConfirmDelete() {
+    const wasDeleted = await onDelete(id);
+
+    if (!wasDeleted) {
+      setIsConfirmingDelete(false);
+    }
+  }
 
   return (
     <article className={`group ${UI_STYLES.card} p-5`}>
@@ -113,9 +124,10 @@ export function ApplicationCard({
             <button
               type="button"
               onClick={() => {
-                void onDelete(id);
+                setIsConfirmingDelete(true);
               }}
               aria-label={`Delete ${company}`}
+              disabled={isConfirmingDelete}
               className="
                 grid h-10 w-10 shrink-0 place-items-center
                 rounded-xl border border-rose-400/30
@@ -124,12 +136,50 @@ export function ApplicationCard({
                 hover:border-rose-400/50
                 hover:bg-rose-500/20
                 hover:text-rose-200
+                disabled:cursor-not-allowed
+                disabled:opacity-60
               "
             >
               <Trash2 size={16} />
             </button>
           </div>
         </div>
+
+        {isConfirmingDelete ? (
+          <div
+            role="group"
+            aria-label={`Confirm deleting ${company}`}
+            className="mt-4 rounded-xl border border-rose-400/20 bg-rose-500/10 p-3"
+          >
+            <p className="text-sm font-medium text-rose-100">
+              Delete this application?
+            </p>
+
+            <p className="mt-1 text-xs leading-5 text-rose-100/70">
+              This removes {company} from your tracker.
+            </p>
+
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setIsConfirmingDelete(false)}
+                className="h-9 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-slate-200 transition hover:bg-white/10"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  void handleConfirmDelete();
+                }}
+                className="h-9 rounded-lg border border-rose-300/30 bg-rose-500/20 px-3 text-xs font-medium text-rose-100 transition hover:bg-rose-500/30"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-4 border-t border-white/10 pt-4">
           <button

@@ -152,8 +152,8 @@ export function useApplications() {
   }, [applications, searchTerm, statusFilter]);
 
   const stats = useMemo(() => {
-    return calculateApplicationStats(filteredApplications);
-  }, [filteredApplications]);
+    return calculateApplicationStats(applications);
+  }, [applications]);
 
   return {
     applications: filteredApplications,

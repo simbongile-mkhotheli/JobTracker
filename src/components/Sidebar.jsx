@@ -1,16 +1,4 @@
-import {
-  BarChart3,
-  CalendarDays,
-  ChevronRight,
-  Home,
-  LayoutGrid,
-  Menu,
-  Settings,
-  Sparkles,
-  UserCircle2,
-  X,
-  LogOut,
-} from "lucide-react";
+import { Home, Menu, Sparkles, UserCircle2, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -18,52 +6,6 @@ import {
   getAuthErrorDiagnostics,
   getAuthUserMessage,
 } from "../utils/authErrors";
-
-const navItems = [
-  { icon: Home, label: "Dashboard", active: true },
-  { icon: LayoutGrid, label: "Applications" },
-  { icon: CalendarDays, label: "Calendar" },
-  { icon: BarChart3, label: "Statistics" },
-  { icon: Settings, label: "Settings" },
-];
-
-function NavItem({ icon: Icon, label, active = false }) {
-  return (
-    <button
-      type="button"
-      className={[
-        "group flex w-full items-center gap-3 rounded-[14px] px-4 py-3 text-left transition-all duration-200",
-        active
-          ? "border border-cyan-400/20 bg-[linear-gradient(90deg,rgba(56,189,248,0.16),rgba(99,102,241,0.10))] text-white shadow-[0_10px_25px_rgba(0,0,0,0.18)]"
-          : "border border-transparent text-slate-400 hover:border-white/8 hover:bg-white/5 hover:text-slate-100",
-      ].join(" ")}
-      aria-current={active ? "page" : undefined}
-    >
-      <span
-        className={[
-          "grid h-9 w-9 place-items-center rounded-[12px] border transition-colors",
-          active
-            ? "border-cyan-400/20 bg-white/10 text-cyan-300"
-            : "border-white/8 bg-white/5 text-slate-400 group-hover:border-white/12 group-hover:text-slate-200",
-        ].join(" ")}
-      >
-        <Icon size={18} strokeWidth={2} />
-      </span>
-
-      <span className="text-[15px] font-medium tracking-[-0.01em]">
-        {label}
-      </span>
-
-      {active ? (
-        <ChevronRight
-          size={16}
-          strokeWidth={2}
-          className="ml-auto text-cyan-300/80"
-        />
-      ) : null}
-    </button>
-  );
-}
 
 function getInitials(email = "") {
   if (!email) return "U";
@@ -101,7 +43,6 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <button
         type="button"
         onClick={onToggle}
@@ -111,7 +52,6 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
         {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
 
-      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
@@ -120,7 +60,6 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-40 flex w-[286px] flex-col border-r border-white/10
@@ -148,14 +87,19 @@ export function Sidebar({ isOpen = true, onToggle = () => {} }) {
         </div>
 
         <nav className="space-y-2">
-          {navItems.map((item) => (
-            <NavItem
-              key={item.label}
-              icon={item.icon}
-              label={item.label}
-              active={item.active}
-            />
-          ))}
+          <button
+            type="button"
+            className="group flex w-full items-center gap-3 rounded-[14px] border border-cyan-400/20 bg-[linear-gradient(90deg,rgba(56,189,248,0.16),rgba(99,102,241,0.10))] px-4 py-3 text-left text-white shadow-[0_10px_25px_rgba(0,0,0,0.18)] transition-all duration-200"
+            aria-current="page"
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-[12px] border border-cyan-400/20 bg-white/10 text-cyan-300 transition-colors">
+              <Home size={18} strokeWidth={2} />
+            </span>
+
+            <span className="text-[15px] font-medium tracking-[-0.01em]">
+              Dashboard
+            </span>
+          </button>
         </nav>
 
         <div className="mt-auto pt-6">
