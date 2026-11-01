@@ -34,11 +34,17 @@ This repository is intended to demonstrate practical frontend engineering habits
 
 ## Getting Started
 
+Use **Node.js 24.x** with its bundled npm for local development. The locked development tooling includes `lint-staged`, which requires Node.js 22.22.1 or newer.
+
+The [CI workflow](.github/workflows/ci.yml) currently selects Node.js 20; updating CI to the recommended Node.js 24.x runtime is still pending.
+
 ```bash
 git clone https://github.com/simbongile-mkhotheli/JobTracker.git
 cd JobTracker
-npm install
+npm ci
 ```
+
+`npm ci` installs the dependencies recorded in `package-lock.json`, matching CI's installation command.
 
 Create `.env.local` using the variables below, then start the dev server:
 
@@ -102,13 +108,16 @@ The `applications` table uses Row Level Security policies so authenticated users
 
 ## Quality Checks
 
-Run the main local checks before opening a PR:
+Run the same checks as CI, in this order, before opening a PR:
 
 ```bash
-npm test -- --run
 npm run lint
+npm run typecheck
+npm run test:run
 npm run build
 ```
+
+These commands run ESLint, the TypeScript compiler without emitting files, Vitest in non-watch mode, and the Vite production build. Typecheck is separate because the build command does not run the TypeScript compiler.
 
 Current automated coverage focuses on:
 
