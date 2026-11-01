@@ -10,12 +10,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let isMounted = true;
+    let hasAuthStateChanged = false;
 
     async function loadSession() {
       try {
         const { data, error } = await supabase.auth.getSession();
 
-        if (!isMounted) return;
+        // Auth events are newer than the session captured during startup.
+        if (!isMounted || hasAuthStateChanged) return;
 
         if (error) {
           console.error(
@@ -30,7 +32,7 @@ export function AuthProvider({ children }) {
         setSession(data.session ?? null);
         setUser(data.session?.user ?? null);
       } catch (err) {
-        if (!isMounted) return;
+        if (!isMounted || hasAuthStateChanged) return;
 
         console.error(
           "Failed to load session:",
@@ -50,6 +52,9 @@ export function AuthProvider({ children }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!isMounted) return;
+
+      hasAuthStateChanged = true;
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       setLoading(false);
