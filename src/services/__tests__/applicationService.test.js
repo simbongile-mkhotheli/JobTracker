@@ -6,315 +6,290 @@ const { authGetUserMock, fromMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("../../lib/supabase", () => ({
-  supabase: {
-    auth: {
-      getUser: authGetUserMock,
-    },
-    from: fromMock,
-  },
+  supabase: { auth: { getUser: authGetUserMock }, from: fromMock },
 }));
 
-import { applicationService } from "../applicationService";
+import {
+  ApplicationServiceError,
+  applicationService,
+} from "../applicationService";
 
-const authenticatedUserId = "user-123";
-
-const ownedApplication = {
-  id: 1,
+const userId = "user-123";
+const application = {
   company: "Boxfusion",
   role: "Frontend Developer",
   website: "boxfusion.io",
-  logoUrl: "https://www.google.com/s2/favicons?domain=boxfusion.io&sz=128",
+  logoUrl: "https://boxfusion.io/logo.png",
   dateApplied: "2026-05-01",
   status: "Interview",
-  notes: "Reached recruiter screening stage.",
+  notes: "Recruiter screen scheduled.",
+};
+const dbPayload = {
+  company: application.company,
+  role: application.role,
+  website: application.website,
+  logo_url: application.logoUrl,
+  date_applied: application.dateApplied,
+  status: application.status,
+  notes: application.notes,
+};
+const dbRow = {
+  ...dbPayload,
+  id: 7,
+  user_id: userId,
+  created_at: "2026-06-16T00:00:00.000Z",
+};
+const savedApplication = {
+  ...application,
+  id: dbRow.id,
+  user_id: userId,
+  created_at: dbRow.created_at,
+};
+const databaseError = {
+  message: "Database request denied.",
+  code: "42501",
+  details: "Insufficient privilege.",
+  hint: "Check the application owner.",
 };
 
-const secondOwnedApplication = {
-  id: 2,
-  company: "OfferZen",
-  role: "UI Engineer",
-  website: "offerzen.com",
-  logoUrl: "https://www.google.com/s2/favicons?domain=offerzen.com&sz=128",
-  dateApplied: "2026-04-28",
-  status: "Applied",
-  notes: "Applied through careers portal.",
-};
-
-const newApplication = {
-  company: "MIP Holdings",
-  role: "Software Developer",
-  website: "mip.co.za",
-  logoUrl: "https://www.google.com/s2/favicons?domain=mip.co.za&sz=128",
-  dateApplied: "2026-04-10",
-  status: "Applied",
-  notes: "Application submitted online.",
-};
-
-const updatedApplication = {
-  ...ownedApplication,
-  role: "Senior Frontend Developer",
-  status: "Offer",
-};
-
-function toDbRow(application, overrides = {}) {
-  return {
-    id: application.id,
-    company: application.company,
-    role: application.role,
-    website: application.website,
-    logo_url: application.logoUrl,
-    date_applied: application.dateApplied,
-    status: application.status,
-    notes: application.notes,
-    user_id: authenticatedUserId,
-    created_at: "2026-06-16T00:00:00.000Z",
-    ...overrides,
+// Model the SDK's awaitable query builder, including filters before a response.
+// These tests verify the client request contract, not database RLS policies.
+function mockQuery(data, error = null) {
+  const response = Promise.resolve({ data, error });
+  const query = {
+    select: vi.fn(),
+    eq: vi.fn(),
+    order: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    single: vi.fn(),
+    then: response.then.bind(response),
   };
+  for (const method of [
+    "select",
+    "eq",
+    "order",
+    "insert",
+    "update",
+    "delete",
+    "single",
+  ]) {
+    query[method].mockReturnValue(query);
+  }
+  fromMock.mockReturnValueOnce(query);
+  return query;
 }
 
-function mockAuthenticatedUser(userId = authenticatedUserId) {
-  authGetUserMock.mockResolvedValueOnce({
-    data: { user: { id: userId } },
-    error: null,
-  });
-}
-
-function mockUnauthenticatedUser() {
-  authGetUserMock.mockResolvedValueOnce({
-    data: { user: null },
-    error: null,
-  });
-}
-
-function mockGetAllApplications(applications) {
-  const orderMock = vi.fn().mockResolvedValueOnce({
-    data: applications,
-    error: null,
-  });
-
-  const eqMock = vi.fn().mockReturnValueOnce({
-    order: orderMock,
-  });
-
-  const selectMock = vi.fn().mockReturnValueOnce({
-    eq: eqMock,
-  });
-
-  fromMock.mockReturnValueOnce({
-    select: selectMock,
-  });
-}
-
-function mockCreateApplication(createdApplication) {
-  const singleMock = vi.fn().mockResolvedValueOnce({
-    data: createdApplication,
-    error: null,
-  });
-
-  const selectMock = vi.fn().mockReturnValueOnce({
-    single: singleMock,
-  });
-
-  const insertMock = vi.fn().mockReturnValueOnce({
-    select: selectMock,
-  });
-
-  fromMock.mockReturnValueOnce({
-    insert: insertMock,
-  });
-
-  return { insertMock };
-}
-
-function mockOwnershipCheck({ exists = true, applicationId = 1 }) {
-  const ownershipResult = {
-    data: exists ? [{ id: applicationId }] : [],
-    error: null,
-  };
-
-  const userEqMock = vi.fn().mockResolvedValueOnce(ownershipResult);
-
-  const idEqMock = vi.fn().mockReturnValueOnce({
-    eq: userEqMock,
-  });
-
-  const selectMock = vi.fn().mockReturnValueOnce({
-    eq: idEqMock,
-  });
-
-  fromMock.mockReturnValueOnce({
-    select: selectMock,
-  });
-}
-
-function mockUpdateApplication(savedApplication) {
-  const singleMock = vi.fn().mockResolvedValueOnce({
-    data: savedApplication,
-    error: null,
-  });
-
-  const selectMock = vi.fn().mockReturnValueOnce({
-    single: singleMock,
-  });
-
-  const userEqMock = vi.fn().mockReturnValueOnce({
-    select: selectMock,
-  });
-
-  const idEqMock = vi.fn().mockReturnValueOnce({
-    eq: userEqMock,
-  });
-
-  const updateMock = vi.fn().mockReturnValueOnce({
-    eq: idEqMock,
-  });
-
-  fromMock.mockReturnValueOnce({
-    update: updateMock,
-  });
-
-  return { updateMock };
-}
-
-function mockDeleteApplication() {
-  const deleteResultMock = vi.fn().mockResolvedValueOnce({
-    error: null,
-  });
-
-  const userEqMock = vi.fn().mockReturnValueOnce({
-    eq: deleteResultMock,
-  });
-
-  const idEqMock = vi.fn().mockReturnValueOnce({
-    eq: userEqMock,
-  });
-
-  const deleteMock = vi.fn().mockReturnValueOnce({
-    eq: idEqMock,
-  });
-
-  fromMock.mockReturnValueOnce({
-    delete: deleteMock,
-  });
-
-  return { deleteMock };
-}
+const operations = [
+  ["read", () => applicationService.getAllApplications()],
+  ["create", () => applicationService.createApplication(application)],
+  [
+    "update",
+    () => applicationService.updateApplication({ ...application, id: 7 }),
+  ],
+  ["delete", () => applicationService.deleteApplication(7)],
+];
 
 describe("applicationService", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("returns applications for the authenticated user", async () => {
-    mockAuthenticatedUser();
-    mockGetAllApplications([
-      toDbRow(ownedApplication),
-      toDbRow(secondOwnedApplication),
-    ]);
-
-    const result = await applicationService.getAllApplications();
-
-    expect(result).toEqual([
-      expect.objectContaining(ownedApplication),
-      expect.objectContaining(secondOwnedApplication),
-    ]);
-  });
-
-  it("throws when the user is not authenticated", async () => {
-    mockUnauthenticatedUser();
-
-    await expect(applicationService.getAllApplications()).rejects.toThrow(
-      "User is not authenticated.",
-    );
-  });
-
-  it("creates a new application for the authenticated user", async () => {
-    mockAuthenticatedUser();
-
-    const createdApplication = toDbRow({
-      id: 3,
-      ...newApplication,
+    vi.resetAllMocks();
+    authGetUserMock.mockResolvedValue({
+      data: { user: { id: userId } },
+      error: null,
     });
+  });
 
-    const { insertMock } = mockCreateApplication(createdApplication);
+  it("loads and maps the authenticated user's rows in newest-first order", async () => {
+    const query = mockQuery([dbRow]);
+    await expect(applicationService.getAllApplications()).resolves.toEqual([
+      savedApplication,
+    ]);
+    expect(fromMock).toHaveBeenCalledWith("applications");
+    expect(query.eq).toHaveBeenCalledWith("user_id", userId);
+    expect(query.order).toHaveBeenCalledWith("created_at", {
+      ascending: false,
+    });
+  });
 
-    const result = await applicationService.createApplication(newApplication);
-
-    expect(result).toMatchObject(newApplication);
-
-    expect(insertMock).toHaveBeenCalledWith([
-      expect.objectContaining({
-        company: "MIP Holdings",
-        role: "Software Developer",
-        user_id: authenticatedUserId,
-      }),
+  it("maps nullable optional database columns to empty form values", async () => {
+    mockQuery([
+      {
+        ...dbRow,
+        website: null,
+        logo_url: null,
+        date_applied: null,
+        notes: null,
+      },
+    ]);
+    await expect(applicationService.getAllApplications()).resolves.toEqual([
+      {
+        ...savedApplication,
+        website: "",
+        logoUrl: "",
+        dateApplied: "",
+        notes: "",
+      },
     ]);
   });
 
-  it("rejects creating an application when the user is not authenticated", async () => {
-    mockUnauthenticatedUser();
+  it.each([{ data: [] }, { data: null }])(
+    "returns an empty list for an empty response (%j)",
+    async ({ data }) => {
+      mockQuery(data);
+      await expect(applicationService.getAllApplications()).resolves.toEqual(
+        [],
+      );
+    },
+  );
 
+  it.each(operations)(
+    "rejects %s without querying the database when signed out",
+    async (_name, run) => {
+      authGetUserMock.mockResolvedValue({ data: { user: null }, error: null });
+      await expect(run()).rejects.toThrow("User is not authenticated.");
+      expect(fromMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(operations)(
+    "preserves auth errors and prevents a %s database request",
+    async (_name, run) => {
+      authGetUserMock.mockResolvedValue({
+        data: { user: null },
+        error: databaseError,
+      });
+      await expect(run()).rejects.toMatchObject({
+        name: "ApplicationServiceError",
+        operation: "getCurrentUser",
+        code: databaseError.code,
+        originalError: databaseError,
+      });
+      expect(fromMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it("creates a row owned by the authenticated user and maps its saved values", async () => {
+    const query = mockQuery(dbRow);
     await expect(
-      applicationService.createApplication(newApplication),
-    ).rejects.toThrow("User is not authenticated.");
+      applicationService.createApplication(application),
+    ).resolves.toEqual(savedApplication);
+    expect(query.insert).toHaveBeenCalledWith([
+      { ...dbPayload, user_id: userId },
+    ]);
+    expect(query.single).toHaveBeenCalledOnce();
   });
 
-  it("updates only the authenticated user's application", async () => {
-    mockAuthenticatedUser();
-    mockOwnershipCheck({
-      exists: true,
-      applicationId: ownedApplication.id,
-    });
-
-    const savedApplication = toDbRow(updatedApplication);
-
-    mockUpdateApplication(savedApplication);
-
-    const result =
-      await applicationService.updateApplication(updatedApplication);
-
-    expect(result).toMatchObject({
-      id: ownedApplication.id,
-      role: "Senior Frontend Developer",
+  it("updates an owned row using both id and user filters without changing ownership", async () => {
+    const ownershipQuery = mockQuery([{ id: 7 }]);
+    const query = mockQuery({ ...dbRow, status: "Offer" });
+    await expect(
+      applicationService.updateApplication({
+        ...application,
+        id: 7,
+        status: "Offer",
+      }),
+    ).resolves.toMatchObject({ id: 7, status: "Offer" });
+    for (const request of [ownershipQuery, query]) {
+      expect(request.eq).toHaveBeenCalledWith("id", 7);
+      expect(request.eq).toHaveBeenCalledWith("user_id", userId);
+    }
+    expect(query.update).toHaveBeenCalledWith({
+      ...dbPayload,
       status: "Offer",
     });
   });
 
-  it("rejects updating an application that the user does not own", async () => {
-    mockAuthenticatedUser();
-    mockOwnershipCheck({
-      exists: false,
-      applicationId: ownedApplication.id,
-    });
-
+  it("deletes an owned row using both id and user filters", async () => {
+    const ownershipQuery = mockQuery([{ id: 7 }]);
+    const query = mockQuery(null);
     await expect(
-      applicationService.updateApplication(updatedApplication),
-    ).rejects.toThrow("Application not found or access denied.");
+      applicationService.deleteApplication(7),
+    ).resolves.toBeUndefined();
+    expect(query.delete).toHaveBeenCalledOnce();
+    for (const request of [ownershipQuery, query]) {
+      expect(request.eq).toHaveBeenCalledWith("id", 7);
+      expect(request.eq).toHaveBeenCalledWith("user_id", userId);
+    }
   });
 
-  it("deletes only the authenticated user's application", async () => {
-    mockAuthenticatedUser();
-    mockOwnershipCheck({
-      exists: true,
-      applicationId: ownedApplication.id,
+  it.each(operations.slice(2))(
+    "does not %s a missing or inaccessible row",
+    async (_name, run) => {
+      const ownershipQuery = mockQuery([]);
+      await expect(run()).rejects.toThrow(
+        "Application not found or access denied.",
+      );
+      expect(fromMock).toHaveBeenCalledTimes(1);
+      expect(ownershipQuery.update).not.toHaveBeenCalled();
+      expect(ownershipQuery.delete).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(operations.slice(2))(
+    "does not %s when the ownership lookup fails",
+    async (_name, run) => {
+      mockQuery(null, databaseError);
+      await expect(run()).rejects.toMatchObject({
+        operation: "ensureApplicationOwnership",
+        applicationId: 7,
+        code: databaseError.code,
+        originalError: databaseError,
+      });
+      expect(fromMock).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each([
+    ["getAllApplications", operations[0][1]],
+    ["createApplication", operations[1][1]],
+    ["updateApplication", operations[2][1]],
+    ["deleteApplication", operations[3][1]],
+  ])("preserves diagnostic context when %s fails", async (operation, run) => {
+    if (
+      operation === "updateApplication" ||
+      operation === "deleteApplication"
+    ) {
+      mockQuery([{ id: 7 }]);
+    }
+    mockQuery(null, databaseError);
+    const error = await run().catch((error) => error);
+    expect(error).toBeInstanceOf(ApplicationServiceError);
+    expect(error).toMatchObject({
+      operation,
+      message: databaseError.message,
+      code: databaseError.code,
+      details: databaseError.details,
+      hint: databaseError.hint,
+      originalError: databaseError,
     });
-
-    const { deleteMock } = mockDeleteApplication();
-
-    await applicationService.deleteApplication(ownedApplication.id);
-
-    expect(deleteMock).toHaveBeenCalledTimes(1);
+    if (
+      operation === "updateApplication" ||
+      operation === "deleteApplication"
+    ) {
+      expect(error.applicationId).toBe(7);
+    }
   });
 
-  it("rejects deleting an application that the user does not own", async () => {
-    mockAuthenticatedUser();
-    mockOwnershipCheck({
-      exists: false,
-      applicationId: ownedApplication.id,
+  it("rejects an update when the saved row is no longer visible", async () => {
+    mockQuery([{ id: 7 }]);
+    mockQuery(null, {
+      message: "Cannot coerce the result to a single JSON object",
+      code: "PGRST116",
     });
-
     await expect(
-      applicationService.deleteApplication(ownedApplication.id),
-    ).rejects.toThrow("Application not found or access denied.");
+      applicationService.updateApplication({ ...application, id: 7 }),
+    ).rejects.toMatchObject({
+      operation: "updateApplication",
+      applicationId: 7,
+      code: "PGRST116",
+    });
+  });
+
+  it("propagates a transport rejection instead of returning a successful read", async () => {
+    const error = new Error("Network unavailable");
+    const query = mockQuery(null);
+    query.order.mockRejectedValueOnce(error);
+    await expect(applicationService.getAllApplications()).rejects.toBe(error);
   });
 });

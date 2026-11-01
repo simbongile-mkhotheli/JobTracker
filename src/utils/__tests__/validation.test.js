@@ -16,6 +16,70 @@ describe("validateApplicationForm", () => {
     expect(validateApplicationForm(validForm)).toEqual({});
   });
 
+  it.each([
+    ["company", 2],
+    ["company", 50],
+    ["role", 2],
+    ["role", 80],
+    ["notes", 500],
+  ])(
+    "accepts %s at its %i-character boundary after trimming",
+    (field, length) => {
+      expect(
+        validateApplicationForm({
+          ...validForm,
+          [field]: `  ${"a".repeat(length)}  `,
+        }),
+      ).toEqual({});
+    },
+  );
+
+  it.each([
+    ["company", "a", "Company name must be at least 2 characters."],
+    [
+      "company",
+      "a".repeat(51),
+      "Company name must be less than 50 characters.",
+    ],
+    ["role", "a", "Role must be at least 2 characters."],
+    ["role", "a".repeat(81), "Role must be less than 80 characters."],
+  ])("rejects an out-of-range %s", (field, value, message) => {
+    expect(
+      validateApplicationForm({ ...validForm, [field]: ` ${value} ` }),
+    ).toEqual({ [field]: message });
+  });
+
+  it("allows optional website and notes to be empty", () => {
+    expect(
+      validateApplicationForm({
+        ...validForm,
+        website: "",
+        normalizedDomain: "",
+        notes: "  ",
+      }),
+    ).toEqual({});
+  });
+
+  it("reports all invalid fields together without changing the entered values", () => {
+    const form = Object.freeze({
+      ...validForm,
+      company: "  ",
+      role: "  ",
+      website: "invalid",
+      normalizedDomain: "",
+      notes: "a".repeat(501),
+      dateApplied: "",
+    });
+
+    expect(validateApplicationForm(form)).toEqual({
+      company: "Company name is required.",
+      role: "Role is required.",
+      website: "Please enter a valid website domain.",
+      notes: "Notes must be less than 500 characters.",
+      dateApplied: "Application date is required.",
+    });
+  });
+
   it("returns a company error when company is missing", () => {
     expect(
       validateApplicationForm({

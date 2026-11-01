@@ -121,10 +121,14 @@ These commands run ESLint, the TypeScript compiler without emitting files, Vites
 
 Current automated coverage focuses on:
 
-- Application service behavior
-- Application validation
+- Authentication session loading, auth state changes, and login/signup success and failure paths
+- Application service requests, ownership filters, and database error handling
+- Application state and statistics after successful and failed saves or deletions
+- Validation boundaries, invalid form submissions, and normalized submission values
 - Website normalization and helper logic
 - Filtering and statistics utilities
+
+These tests use mocked Supabase responses. They do not verify a live database's Row Level Security policies or a complete deployed authentication flow.
 
 ## Contributing
 
