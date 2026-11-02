@@ -5,6 +5,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
+import { StrictMode } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -13,21 +14,20 @@ import Login from "../Login";
 const { signIn } = vi.hoisted(() => ({ signIn: vi.fn() }));
 vi.mock("../../hooks/useAuth", () => ({ useAuth: () => ({ signIn }) }));
 
-function renderLogin() {
+function renderLogin({ state = { from: { pathname: "/applications" } } } = {}) {
   render(
-    <MemoryRouter
-      initialEntries={[
-        { pathname: "/login", state: { from: { pathname: "/applications" } } },
-      ]}
-    >
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/applications"
-          element={<div>Requested applications page</div>}
-        />
-      </Routes>
-    </MemoryRouter>,
+    <StrictMode>
+      <MemoryRouter initialEntries={[{ pathname: "/login", state }]}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<div>Default dashboard</div>} />
+          <Route
+            path="/applications"
+            element={<div>Requested applications page</div>}
+          />
+        </Routes>
+      </MemoryRouter>
+    </StrictMode>,
   );
 }
 
@@ -62,6 +62,7 @@ describe("Login", () => {
     );
 
     expect(signIn).toHaveBeenCalledWith("person@example.com", "test-password");
+    expect(signIn).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Requested applications page")).toBeInTheDocument();
   });
 
@@ -129,19 +130,125 @@ describe("Login", () => {
     expect(console.error).toHaveBeenCalledTimes(1);
   });
 
-  it("starts demo sign-in after the delay and cancels it on unmount", async () => {
+  it("never authenticates automatically or changes manually entered credentials", async () => {
     signIn.mockResolvedValue({});
     renderLogin();
-    expect(signIn).not.toHaveBeenCalled();
     await act(async () => vi.advanceTimersByTime(800));
-    expect(signIn).toHaveBeenCalledWith("admin@admin.com", "123456");
-    expect(screen.getByText("Requested applications page")).toBeInTheDocument();
+    expect(signIn).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Email")).toHaveValue("");
+    expect(screen.getByLabelText("Password")).toHaveValue("");
 
-    cleanup();
-    signIn.mockClear();
-    renderLogin();
-    cleanup();
-    await act(async () => vi.advanceTimersByTime(800));
+    fillCredentials();
+    await act(async () => vi.advanceTimersByTime(60_000));
     expect(signIn).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Email")).toHaveValue("person@example.com");
+    expect(screen.getByLabelText("Password")).toHaveValue("test-password");
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Try Demo" })).toBeEnabled();
+  });
+
+  it("authenticates the demo account only when Try Demo is clicked", async () => {
+    signIn.mockResolvedValue({});
+    renderLogin();
+    // Demo access must also work with empty required manual-login fields.
+    expect(signIn).not.toHaveBeenCalled();
+    await act(async () =>
+      fireEvent.click(screen.getByRole("button", { name: "Try Demo" })),
+    );
+    expect(signIn).toHaveBeenCalledWith("admin@admin.com", "123456");
+    expect(signIn).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Requested applications page")).toBeInTheDocument();
+  });
+
+  it.each(["Sign in", "Try Demo"])(
+    "returns to the default dashboard after %s without a requested route",
+    async (buttonName) => {
+      signIn.mockResolvedValue({});
+      renderLogin({ state: null });
+      fillCredentials();
+      await act(async () =>
+        fireEvent.click(screen.getByRole("button", { name: buttonName })),
+      );
+      expect(screen.getByText("Default dashboard")).toBeInTheDocument();
+    },
+  );
+
+  it.each(["Sign in", "Try Demo"])(
+    "prevents repeated and competing requests while %s is pending",
+    async (buttonName) => {
+      let resolveSignIn;
+      signIn.mockReturnValue(
+        new Promise((resolve) => {
+          resolveSignIn = resolve;
+        }),
+      );
+      renderLogin();
+      fillCredentials();
+      const manual = screen.getByRole("button", { name: "Sign in" });
+      const demo = screen.getByRole("button", { name: "Try Demo" });
+      const first = buttonName === "Sign in" ? manual : demo;
+      const form = manual.closest("form");
+
+      // Batch events to cover attempts before disabled state has rendered.
+      act(() => {
+        fireEvent.click(first);
+        fireEvent.click(first);
+        fireEvent.click(demo);
+        fireEvent.submit(form);
+        fireEvent.submit(form);
+      });
+      expect(signIn).toHaveBeenCalledTimes(1);
+      expect(signIn).toHaveBeenCalledWith(
+        ...(buttonName === "Sign in"
+          ? ["person@example.com", "test-password"]
+          : ["admin@admin.com", "123456"]),
+      );
+      expect(manual).toBeDisabled();
+      expect(demo).toBeDisabled();
+      await act(async () => vi.advanceTimersByTime(60_000));
+      expect(signIn).toHaveBeenCalledTimes(1);
+      expect(screen.getByLabelText("Email")).toHaveValue("person@example.com");
+      expect(screen.getByLabelText("Password")).toHaveValue("test-password");
+
+      await act(async () => resolveSignIn({}));
+      expect(
+        screen.getByText("Requested applications page"),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("shows safe demo failure feedback and preserves credentials for a manual retry", async () => {
+    signIn
+      .mockRejectedValueOnce({
+        code: "invalid_credentials",
+        message: "Provider details",
+      })
+      .mockResolvedValueOnce({});
+    renderLogin();
+    fillCredentials();
+    await act(async () =>
+      fireEvent.click(screen.getByRole("button", { name: "Try Demo" })),
+    );
+
+    expect(
+      screen.getByText("Email or password is incorrect."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Provider details")).not.toBeInTheDocument();
+    expect(console.error).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Email")).toHaveValue("person@example.com");
+    expect(screen.getByLabelText("Password")).toHaveValue("test-password");
+    expect(screen.getByRole("button", { name: "Try Demo" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled();
+    await act(async () => vi.advanceTimersByTime(60_000));
+    expect(signIn).toHaveBeenCalledTimes(1);
+
+    await act(async () =>
+      fireEvent.click(screen.getByRole("button", { name: "Sign in" })),
+    );
+    expect(signIn).toHaveBeenLastCalledWith(
+      "person@example.com",
+      "test-password",
+    );
+    expect(screen.getByText("Requested applications page")).toBeInTheDocument();
   });
 });

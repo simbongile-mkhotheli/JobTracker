@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -17,55 +17,38 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isAutoSigningIn, setIsAutoSigningIn] = useState(false);
+  const signInPending = useRef(false);
 
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname || "/";
 
-  const handleSignIn = useCallback(
-    async function handleSignIn(nextEmail, nextPassword) {
-      setIsLoading(true);
-      setError("");
+  async function handleSignIn(nextEmail, nextPassword) {
+    if (signInPending.current) return;
 
-      try {
-        await signIn(nextEmail, nextPassword);
-
-        navigate(redirectTo, { replace: true });
-      } catch (err) {
-        if (!isExpectedAuthError(err, "signIn")) {
-          console.error(
-            "Unexpected sign-in failure:",
-            getAuthErrorDiagnostics(err, "signIn"),
-          );
-        }
-
-        setError(getAuthUserMessage(err, "signIn"));
-      } finally {
-        setIsLoading(false);
-        setIsAutoSigningIn(false);
-      }
-    },
-    [navigate, redirectTo, signIn],
-  );
-
-  function fillDemoCredentials() {
-    setEmail(DEMO_CREDENTIALS.email);
-    setPassword(DEMO_CREDENTIALS.password);
+    signInPending.current = true;
+    setIsLoading(true);
     setError("");
+
+    try {
+      await signIn(nextEmail, nextPassword);
+
+      navigate(redirectTo, { replace: true });
+    } catch (err) {
+      if (!isExpectedAuthError(err, "signIn")) {
+        console.error(
+          "Unexpected sign-in failure:",
+          getAuthErrorDiagnostics(err, "signIn"),
+        );
+      }
+
+      setError(getAuthUserMessage(err, "signIn"));
+    } finally {
+      setIsLoading(false);
+      signInPending.current = false;
+    }
   }
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setIsAutoSigningIn(true);
-      setEmail(DEMO_CREDENTIALS.email);
-      setPassword(DEMO_CREDENTIALS.password);
-      void handleSignIn(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password);
-    }, 800);
-
-    return () => window.clearTimeout(timer);
-  }, [handleSignIn]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -93,15 +76,18 @@ export default function Login() {
             Recruiter demo access
           </p>
           <p className="mt-1 text-xs leading-5 text-cyan-100/80">
-            The demo account will log in automatically after the screen loads.
+            Try JobTracker with the demo account.
           </p>
 
           <button
             type="button"
-            onClick={fillDemoCredentials}
-            className="mt-3 rounded-xl border border-cyan-400/20 bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-500/25"
+            onClick={() =>
+              handleSignIn(DEMO_CREDENTIALS.email, DEMO_CREDENTIALS.password)
+            }
+            disabled={isLoading}
+            className="mt-3 rounded-xl border border-cyan-400/20 bg-cyan-500/15 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Fill demo credentials
+            Try Demo
           </button>
         </div>
 
@@ -146,10 +132,10 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={isLoading || isAutoSigningIn}
+            disabled={isLoading}
             className="h-11 w-full rounded-xl bg-indigo-600 px-5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isAutoSigningIn || isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
