@@ -1,0 +1,165 @@
+{
+  "project_ref": "urzvwixshavciyktjlhw",
+  "observed_on": "2026-11-02",
+  "source": "Read-only SELECT from supabase_migrations.schema_migrations; no application rows or auth user records accessed.",
+  "migration": {
+    "version": "20261102122254",
+    "name": "repair_applications_ownership_20261102",
+    "statement_count": 1,
+    "utf8_byte_length": 5829,
+    "server_statement_md5": "502b72305a26e6ec30cce9f9ed28663f",
+    "statement_sha256": "1d6f279002ca671774f2e9c30393206532e663f0a7692fc2c18a59d1b3f52acb",
+    "sql_file": "20261102122254_repair_applications_ownership_20261102.sql"
+  },
+  "all_observed_history": [
+    {
+      "version": "20261102122254",
+      "name": "repair_applications_ownership_20261102"
+    }
+  ],
+  "verification": {
+    "catalog_metadata": "Independently retrieved read-only after deployment.",
+    "functional_smoke": "User reports authenticated JobTracker operations still work; not repeated by this agent.",
+    "isolated_database_suite": "No execution evidence supplied; not run in this reconciliation.",
+    "historical_executor_atomicity": "Not independently established by the ledger or catalog."
+  },
+  "security_metadata": {
+    "owner": "postgres",
+    "columns": [
+      {
+        "name": "id",
+        "identity": "a",
+        "not_null": true
+      },
+      {
+        "name": "created_at",
+        "identity": "",
+        "not_null": true
+      },
+      {
+        "name": "company",
+        "identity": "",
+        "not_null": true
+      },
+      {
+        "name": "role",
+        "identity": "",
+        "not_null": true
+      },
+      {
+        "name": "website",
+        "identity": "",
+        "not_null": false
+      },
+      {
+        "name": "logo_url",
+        "identity": "",
+        "not_null": false
+      },
+      {
+        "name": "date_applied",
+        "identity": "",
+        "not_null": true
+      },
+      {
+        "name": "status",
+        "identity": "",
+        "not_null": true
+      },
+      {
+        "name": "notes",
+        "identity": "",
+        "not_null": false
+      },
+      {
+        "name": "user_id",
+        "identity": "",
+        "not_null": false
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX applications_pkey ON public.applications USING btree (id)"
+    ],
+    "policies": [
+      {
+        "name": "Users can delete their own applications",
+        "roles": ["authenticated"],
+        "using": "(auth.uid() = user_id)",
+        "command": "DELETE",
+        "permissive": "PERMISSIVE",
+        "with_check": null
+      },
+      {
+        "name": "Users can insert their own applications",
+        "roles": ["authenticated"],
+        "using": null,
+        "command": "INSERT",
+        "permissive": "PERMISSIVE",
+        "with_check": "(auth.uid() = user_id)"
+      },
+      {
+        "name": "Users can update their own applications",
+        "roles": ["authenticated"],
+        "using": "(auth.uid() = user_id)",
+        "command": "UPDATE",
+        "permissive": "PERMISSIVE",
+        "with_check": "(auth.uid() = user_id)"
+      },
+      {
+        "name": "Users can view their own applications",
+        "roles": ["authenticated"],
+        "using": "(auth.uid() = user_id)",
+        "command": "SELECT",
+        "permissive": "PERMISSIVE",
+        "with_check": null
+      }
+    ],
+    "rls_forced": false,
+    "constraints": [
+      {
+        "name": "applications_pkey",
+        "definition": "PRIMARY KEY (id)"
+      },
+      {
+        "name": "applications_user_id_fkey",
+        "definition": "FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+      }
+    ],
+    "rls_enabled": true,
+    "postgres_major": 17,
+    "client_privileges": [
+      {
+        "role": "anon",
+        "delete": false,
+        "insert": false,
+        "select": false,
+        "update": false,
+        "bypassrls": false,
+        "superuser": false,
+        "any_column": false,
+        "excess_table": false,
+        "excess_column": false,
+        "sequence_usage": false,
+        "sequence_excess": false,
+        "owner_equivalent": false,
+        "table_grant_options": false
+      },
+      {
+        "role": "authenticated",
+        "delete": true,
+        "insert": true,
+        "select": true,
+        "update": true,
+        "bypassrls": false,
+        "superuser": false,
+        "any_column": true,
+        "excess_table": false,
+        "excess_column": false,
+        "sequence_usage": true,
+        "sequence_excess": false,
+        "owner_equivalent": false,
+        "table_grant_options": false
+      }
+    ]
+  }
+}
