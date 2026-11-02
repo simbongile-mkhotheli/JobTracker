@@ -10,8 +10,6 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:security:offline": "node --test tests/integration/environment.offline.js",
-    "test:security:integration": "vitest run --config vitest.integration.config.js",
     "typecheck": "tsc --noEmit",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

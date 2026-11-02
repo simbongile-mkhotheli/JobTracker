@@ -1,195 +1,81 @@
-# Database migration reconciliation
+# Deployed ownership repair and migration status
 
-Status on 2 November 2026: **PARTIALLY RECONCILED — migration execution blocked.**
+**PARTIALLY RECONCILED.** The production ownership repair is recorded correctly;
+historical migration baseline work remains separate in
+[issue #140](https://github.com/simbongile-mkhotheli/JobTracker/issues/140).
+This PR documents the completed repair and performs no production deployment.
 
-Production project: `urzvwixshavciyktjlhw`. Only read-only history/catalog queries
-were used for this reconciliation. No records, policies, grants or migration
-history were changed. Work belongs to `fix-applications-ownership-rls`.
+## Vulnerability and completed repair
 
-## What production records
+Four permissive PUBLIC allow-all policies coexisted with owner policies on
+`public.applications`. PostgreSQL combines permissive policies with OR, so the
+allow-all policies defeated the ownership restrictions. Ordinary client roles
+also held unnecessarily broad table and identity-sequence privileges.
 
-The complete observed migration history contains one record:
+Production migration `20261102122254`, named
+`repair_applications_ownership_20261102`, removed those four allow-all policies
+and retained four policies for `authenticated` using `auth.uid() = user_id`:
 
-| Version        | Name                                   | Statements |
-| -------------- | -------------------------------------- | ---------- |
-| 20261102122254 | repair_applications_ownership_20261102 | 1          |
+| Operation | USING: existing ownership | WITH CHECK: resulting ownership |
+| --------- | ------------------------- | ------------------------------- |
+| SELECT    | required                  | not applicable                  |
+| INSERT    | not applicable            | required                        |
+| UPDATE    | required                  | required                        |
+| DELETE    | required                  | not applicable                  |
 
-The [exact SQL](security/deployed/20261102122254_repair_applications_ownership_20261102.sql)
-was recovered from `supabase_migrations.schema_migrations.statements[1]` as UTF-8
-hex, decoded without formatting, and verified against the server byte length and
-MD5. Leading/trailing newlines are preserved. The scoped Git attribute disables
-line-ending conversion for this evidence file. Do not format or edit it.
+The recorded catalog snapshot confirms RLS is enabled, anonymous effective
+table/column/sequence access is absent, and authenticated clients retain
+SELECT/INSERT/UPDATE/DELETE plus sequence USAGE without tested excess privileges
+or grant options. Both client roles lack superuser, BYPASSRLS and inherited
+table-owner privileges.
 
+## Exact production record and verification
+
+On 2 November 2026, authorized read-only queries retrieved migration history and
+security catalogs from project `urzvwixshavciyktjlhw`. No application records or
+auth user data were read. The observed history contained this single migration.
+
+The [SQL archive](security/deployed/20261102122254_repair_applications_ownership_20261102.sql)
+is the exact `supabase_migrations.schema_migrations.statements[1]`, recovered as
+UTF-8 hex and decoded without formatting. Its byte length and MD5 matched the
+server values; SHA-256 was calculated locally:
+
+- Statements: **1**
 - UTF-8 bytes: **5829**
 - Server MD5: `502b72305a26e6ec30cce9f9ed28663f`
 - SHA-256: `1d6f279002ca671774f2e9c30393206532e663f0a7692fc2c18a59d1b3f52acb`
 
-[Recorded metadata and catalog snapshot](security/deployed/20261102122254.metadata.json)
-contain no application records or auth user data. The version is the actual
-recorded identifier; it is not evidence of a separately verified execution time,
-operator, deployed Git commit, or transaction wrapper. Those details were not supplied.
+[Migration metadata and the catalog snapshot](security/deployed/20261102122254.metadata.json)
+preserve the supporting evidence. The archive retains its leading/trailing
+newlines; a scoped Git attribute prevents line-ending conversion. Do not format
+or edit it. It is evidence outside the active migration directory, not a pending
+migration. The earlier undeployed candidate is not the production record.
 
-## Verified resulting security
+The user reports that authenticated JobTracker operations work. Catalog checks
+confirm configuration, but do not independently prove every denied operation,
+historical transaction atomicity or pre/post record preservation. Existing
+application unit tests use mocked Supabase responses and do not verify live RLS.
 
-RLS is enabled; owner is postgres; FORCE RLS is false. Exactly four PERMISSIVE
-policies target authenticated, with `auth.uid() = user_id`:
+## Why historical migrations must not be replayed
 
-| Operation | Existing rows: USING | New values: WITH CHECK |
-| --------- | -------------------- | ---------------------- |
-| SELECT    | ownership            | none                   |
-| INSERT    | none                 | ownership              |
-| UPDATE    | ownership            | ownership              |
-| DELETE    | ownership            | none                   |
+The unchanged `20260616_000001_jobtracker_schema.sql` and
+`20260616_000002_normalize_applications_schema.sql` share version prefix
+`20260616`. The first uses unquoted logoUrl/dateApplied, which PostgreSQL folds
+to lowercase; the second assumes quoted mixed-case identifiers.
 
-The four PUBLIC allow-all policies are absent. Effective anonymous table, column
-and sequence privileges are absent. Authenticated has SELECT/INSERT/UPDATE/DELETE
-and sequence USAGE, with no excess table/column/sequence privileges or tested grant
-options. Both ordinary client roles lack superuser, BYPASSRLS and inherited table
-owner privileges. This corrects permissive policies combining with OR to defeat
-ownership, plus excessively broad client grants.
+Production also differs from those scripts: the four validation constraints and
+user_id/created_at indexes are absent, user_id is nullable, and id is GENERATED
+ALWAYS rather than BY DEFAULT. The security repair did not make those schema
+changes. Do not mark the historical scripts applied based only on matching names.
 
-The user reports a successful manual authenticated application smoke test.
-This agent verified catalogs, not functional access through synthetic accounts.
-The isolated legacy/ownership/rollback suite has not been run in this task and no
-results were supplied. Current correct metadata does not retrospectively prove
-deployment atomicity or pre/post record preservation.
+The recorded repair requires the old eight-policy state. Replaying it against
+the repaired table would fail. Do not reapply it, rename historical migrations
+to make them pending, or use db push, db reset or migration repair to force the
+histories to agree. The repository's quality workflow executes no migrations;
+this warning does not technically prevent someone from running CLI commands.
 
-## Deployed SQL versus local candidate
-
-Keep `supabase/security-patches/repair_applications_ownership.sql` unchanged. It is
-the earlier candidate used by the disposable suite, not the deployed artifact.
-Its tests must not be presented as evidence for the different archived script.
-
-| Concern              | Recorded production SQL                                                                                            | Local candidate                                                                                                            |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
-| Initial RLS          | Requires already enabled                                                                                           | Enables RLS                                                                                                                |
-| Baseline             | Requires eight policies and matches allow-all/owner names, roles and predicates                                    | Checks PG17, current table owner, identity column/sequence and ordinary role privilege flags                               |
-| Lock order           | Preflight before ACCESS EXCLUSIVE lock                                                                             | Lock before preflight                                                                                                      |
-| Policy removal       | DROP POLICY, requires known names                                                                                  | DROP POLICY IF EXISTS; final checks reject extras                                                                          |
-| Timeouts/search path | Local 5s lock and 30s statement timeouts; no explicit search path                                                  | Also 60s transaction timeout and pg_catalog search path                                                                    |
-| Mutations            | Remove allow-all policies, scope owner policies, narrow table/sequence grants                                      | Same intended security mutations                                                                                           |
-| Postflight           | Exact four matching owner policies, anonymous denial, CRUD/USAGE individually, excess table/column/sequence checks | Also schema USAGE, table/sequence grant options and explicit RLS-enabled checks; checks unused policy expressions are NULL |
-
-The recorded script has effective column checks too. It does not include the
-candidate's table-level grant-option and sequence grant-option assertions, though
-the new read-only catalog query confirms these are absent now. Do not silently
-replace either script or rerun the candidate to make production match it.
-The recorded script expects the old eight-policy state and is deliberately not
-replayable on the already-repaired table. Its preflight checks precede the lock;
-do not claim the candidate's lock ordering/timeout properties were deployed.
-
-## Why the historical files are not a baseline
-
-Both `20260616_000001_jobtracker_schema.sql` and
-`20260616_000002_normalize_applications_schema.sql` use Supabase's same version
-prefix `20260616`. Unquoted logoUrl/dateApplied in the first fold to lowercase;
-the second tries to rename quoted mixed-case identifiers. A fresh replay is not
-an approved, reproducible installation.
-
-Current catalog evidence also differs from those files:
-
-- Only primary-key and user foreign-key constraints exist: the four historical
-  status/company/role/notes checks are absent.
-- Only the primary-key index exists: user_id and created_at indexes are absent.
-- user_id remains nullable; historical creation says NOT NULL.
-- id is GENERATED ALWAYS, while historical creation and the synthetic fixture
-  use BY DEFAULT. The security repair contains no identity-mode change.
-- Current columns use logo_url/date_applied; this does not prove the historical
-  quoted renames ever ran. Historical owner policies target PUBLIC; current ones
-  target authenticated.
-
-Do not mark these scripts applied, rename them to new versions, add their missing
-constraints, change existing records, or replay CREATE TABLE to silence history
-differences. Preserve the real recorded security version.
-
-## Chosen repository-only strategy and remaining blocker
-
-Archive the deployed statement as immutable evidence outside `supabase/migrations`.
-Do not add it as an active migration yet: the preceding baseline is invalid and
-the exact deployed SQL expects pre-repair policies. No fake no-op migration or
-second repair version is introduced. Leave the historical files untouched and
-put an explicit stop notice beside them and in the repository README.
-
-Full reconciliation needs a separately reviewed baseline/adoption design that
-handles both existing production history and empty-database creation. It must
-inventory the actual application schema without user records, decide how to
-retire the historical files, and prove a clean replay in an approved disposable
-environment. A post-repair snapshot already includes secure policies; appending
-the old eight-policy repair to it would fail. Baseline design and history adoption
-must therefore be solved together, not by changing timestamps or applied flags.
-Any required database/history changes need separate approval.
-
-## Deployment gate
-
-There is no new automatic migration runner or CI deployment. This is a documented
-stop gate, not a technical lock: historical SQL files are still discoverable by
-CLI tools. Accidental replay is not mechanically impossible. Do not bypass it.
-
-Before any future deployment:
-
-1. Confirm the target and approvals; inspect the whole branch diff, migration
-   filenames and version uniqueness. Check that none duplicates 20261102122254.
-2. With authorized read-only access, compare all remote version/name/statement
-   records with local artifacts and schema metadata. When already installed,
-   consult CLI help for `supabase migration list` and select the explicit target;
-   list is informational, not permission to repair its differences. No credentials
-   belong in command arguments or Git. History presence is not a schema diff.
-3. Stop on missing local versions, unexplained remote versions, duplicate prefixes,
-   mismatched SQL or missing baseline effects. Do not mark versions applied or
-   reverted just to make the lists agree.
-4. After baseline/adoption is separately reconciled and disposable replay passes,
-   obtain approval for a concrete plan. Only then use a supported `db push --dry-run`
-   to inspect pending filenames (it contacts the database and is not a SQL
-   correctness test). Require that only intended new migrations are pending;
-   the recorded repair and historical scripts must not appear. Actual push needs
-   separate deployment approval. These commands were not run here.
-
-For now do not use db push (including dry-run), migration up, db reset, migration
-repair, migration squash, or automatic db pull/history updates. migration new may
-only create a future local file in a separately approved change; it does not
-solve the current baseline. Never reset production. Use the independent guarded
-disposable suite for candidate investigation only, with explicit SQL approval.
-
-References: [Supabase migration history](https://supabase.com/docs/guides/deployment/database-migrations),
-[Supabase CLI reference](https://supabase.com/docs/reference/cli/supabase-migration-list).
-
-## Local verification of this reconciliation
-
-Final PR checks were rerun with installed Node 24.22.1 tooling on 2 November 2026,
-after fast-forwarding fix-applications-ownership-rls to origin/main at 3d34fd4
-(fix: require explicit demo login, PR #139). That upstream commit is not part of
-the security PR diff. Existing uncommitted work was retained without conflicts.
-
-| Check                                               | Actual result                                           |
-| --------------------------------------------------- | ------------------------------------------------------- |
-| npm run lint                                        | Exit 0                                                  |
-| npm run typecheck                                   | Exit 0; existing src scope                              |
-| npm run test:run -- --maxWorkers=2                  | 118 passed, 14 files, 39.96s                            |
-| npm run test:security:offline                       | 14 passed; no hosted requests                           |
-| npm run build                                       | Exit 0                                                  |
-| npm run format:check                                | Exit 0; changed documentation rechecked afterward       |
-| git diff --check and separate untracked-file checks | No whitespace errors                                    |
-| Archived SQL integrity                              | 5829 bytes and MD5 match server; SHA-256 recorded above |
-
-Unit tests used process-local TEMP/TMP/TMPDIR under .vite/final-pr-temp
-to avoid the previously observed Windows sandbox cache-rename issue. No unit
-files or configuration were changed for this workaround. Temporary files were
-removed after verification. No dependency installation or persistent machine
-configuration change was required. No database integration test, migration
-command, production write or real-user record query was executed.
-
-## Proposed issue and PR
-
-Issue: Reconcile the JobTracker database baseline without replaying the deployed
-ownership repair. Acceptance: verified schema-only baseline, truthful history
-mapping preserving 20261102122254, retired duplicate-prefix files, approved empty
-replay and a deployment preview containing only intended future migrations.
-
-PR: Preserve the deployed ownership repair and add guarded verification.
-Archive the exact recorded SQL and catalog evidence, distinguish the local
-candidate, and include the guarded disposable ownership suite, synthetic legacy
-fixture, offline safeguards, and candidate/containment/inspection SQL. Document
-the remaining baseline/adoption gate without adding active migrations or an
-automatic deployment step. See the local verification record above. This PR
-does not deploy SQL or claim fresh-database reproducibility or executed hosted
-integration coverage.
+Issue #140 must establish a truthful baseline/adoption strategy that preserves
+the recorded repair and handles existing production and fresh-database creation
+without blindly replaying it. No baseline, missing constraints, history flags or
+application records are changed by this PR. Future database changes require a
+separate reviewed plan and approval.

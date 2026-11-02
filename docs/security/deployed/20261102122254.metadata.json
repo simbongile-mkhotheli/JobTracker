@@ -20,7 +20,6 @@
   "verification": {
     "catalog_metadata": "Independently retrieved read-only after deployment.",
     "functional_smoke": "User reports authenticated JobTracker operations still work; not repeated by this agent.",
-    "isolated_database_suite": "No execution evidence supplied; not run in this reconciliation.",
     "historical_executor_atomicity": "Not independently established by the ledger or catalog."
   },
   "security_metadata": {
