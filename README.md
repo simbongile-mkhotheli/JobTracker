@@ -93,22 +93,19 @@ src/
 - `useApplications` owns dashboard state and coordinates application CRUD actions.
 - `applicationService` isolates Supabase queries and handles database-to-app model mapping.
 - Form validation lives in shared utilities so it can be tested outside the UI.
-- Supabase migrations document the database contract and RLS ownership rules.
+- Database documentation distinguishes the deployed schema from historical migration SQL.
 - Components are kept mostly presentational, with data access pushed into hooks and services.
 
 ## Database Schema
 
-**Migration execution is blocked pending baseline reconciliation.** The production
-ownership repair `20261102122254` is already recorded in Supabase; its exact SQL
-is archived outside the active migrations directory. The two historical files
-below are not a safe installation/upgrade path. Do not replay or mark them applied.
-See [migration status and deployment gate](docs/database-migrations.md).
+**Migration execution is prohibited pending baseline reconciliation.** This is a
+documented rule, not a technical block. Production repair `20261102122254` is
+already recorded in Supabase, with its exact SQL archived outside the active
+migration directory. Historical migration files are not an accurate production
+baseline; do not replay them or mark them applied.
 
-The application database contract is documented in:
-
-- `docs/supabase-schema.md`
-- `supabase/migrations/20260616_000001_jobtracker_schema.sql`
-- `supabase/migrations/20260616_000002_normalize_applications_schema.sql`
+See the [deployed schema](docs/supabase-schema.md) and
+[security repair record and migration warnings](docs/database-migrations.md).
 
 The `applications` table uses Row Level Security policies so authenticated users can only read and mutate their own records.
 

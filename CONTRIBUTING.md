@@ -137,7 +137,3 @@ JobTracker prioritizes:
 - Incremental improvements
 - Practical frontend engineering
 - Consistent Git workflows
-
-```
-
-```
