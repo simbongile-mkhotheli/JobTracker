@@ -5,3 +5,6 @@
 *.jpeg binary
 *.gif binary
 *.ico binary
+
+# Deployed SQL evidence must retain the bytes recovered from migration history.
+docs/security/deployed/*.sql -text

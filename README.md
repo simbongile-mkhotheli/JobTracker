@@ -98,6 +98,12 @@ src/
 
 ## Database Schema
 
+**Migration execution is blocked pending baseline reconciliation.** The production
+ownership repair `20261102122254` is already recorded in Supabase; its exact SQL
+is archived outside the active migrations directory. The two historical files
+below are not a safe installation/upgrade path. Do not replay or mark them applied.
+See [migration status and deployment gate](docs/database-migrations.md).
+
 The application database contract is documented in:
 
 - `docs/supabase-schema.md`
