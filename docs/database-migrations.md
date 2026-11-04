@@ -3,7 +3,7 @@
 **PARTIALLY RECONCILED.** The production ownership repair is recorded correctly;
 historical migration baseline work remains separate in
 [issue #140](https://github.com/simbongile-mkhotheli/JobTracker/issues/140).
-This PR documents the completed repair and performs no production deployment.
+This record documents the completed repair; it does not authorize further deployment.
 
 ## Vulnerability and completed repair
 
@@ -49,7 +49,7 @@ server values; SHA-256 was calculated locally:
 preserve the supporting evidence. The archive retains its leading/trailing
 newlines; a scoped Git attribute prevents line-ending conversion. Do not format
 or edit it. It is evidence outside the active migration directory, not a pending
-migration. The earlier undeployed candidate is not the production record.
+migration.
 
 The user reports that authenticated JobTracker operations work. Catalog checks
 confirm configuration, but do not independently prove every denied operation,
@@ -63,10 +63,10 @@ The unchanged `20260616_000001_jobtracker_schema.sql` and
 `20260616`. The first uses unquoted logoUrl/dateApplied, which PostgreSQL folds
 to lowercase; the second assumes quoted mixed-case identifiers.
 
-Production also differs from those scripts: the four validation constraints and
-user_id/created_at indexes are absent, user_id is nullable, and id is GENERATED
-ALWAYS rather than BY DEFAULT. The security repair did not make those schema
-changes. Do not mark the historical scripts applied based only on matching names.
+Production does not include every schema change described by those scripts;
+the [deployed schema reference](supabase-schema.md) records the differences.
+The security repair did not apply the missing schema changes. Do not mark the
+historical scripts applied based only on matching names.
 
 The recorded repair requires the old eight-policy state. Replaying it against
 the repaired table would fail. Do not reapply it, rename historical migrations
@@ -76,6 +76,6 @@ this warning does not technically prevent someone from running CLI commands.
 
 Issue #140 must establish a truthful baseline/adoption strategy that preserves
 the recorded repair and handles existing production and fresh-database creation
-without blindly replaying it. No baseline, missing constraints, history flags or
-application records are changed by this PR. Future database changes require a
+without blindly replaying it. This documentation does not establish a baseline
+or change constraints, history flags or application records. Future database changes require a
 separate reviewed plan and approval.
