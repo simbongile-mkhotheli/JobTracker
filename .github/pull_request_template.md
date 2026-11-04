@@ -1,8 +1,6 @@
 ## Summary
 
-Provide a concise overview of the change.
-
----
+Briefly explain what changed and why.
 
 ## Changes
 
@@ -11,24 +9,42 @@ Provide a concise overview of the change.
 - Refactored...
 - Removed...
 
----
-
-## Notes
-
-Include implementation details, tradeoffs, or future considerations.
-
----
+Keep the list focused on this PR.
 
 ## Verification
 
-- [ ] Application builds successfully
-- [ ] No console errors
-- [ ] CRUD workflows tested
+### Automated Checks
+
+- [ ] `npm run lint`
+- [ ] `npm run typecheck`
+- [ ] `npm run test:run`
+- [ ] `npm run build`
+- [ ] `npm run format:check`
+
+### Manual Testing (When Applicable)
+
+- [ ] Relevant user workflows tested
+- [ ] Loading, empty, and error states checked
 - [ ] Responsive layout verified
-- [ ] No visual regressions
+- [ ] Keyboard and accessibility interactions checked
+- [ ] No relevant visual regressions observed
 
----
+Keep the checks relevant to this PR. Mark checks as passed only after running them, and note any failures or checks you could not run. Report local results separately from hosted CI.
 
-## Linked Issues
+## Technical Notes
 
-Closes #
+Describe important implementation decisions, trade-offs, limitations, or follow-up work.
+
+For database or authentication changes, explain how data ownership and security were verified.
+
+Omit this section if there is nothing additional to report.
+
+## Screenshots (If Applicable)
+
+Include before-and-after screenshots for visible UI changes.
+
+## Related Issues
+
+<!-- Replace <issue-number> with the actual issue number.
+Use `Closes #<issue-number>` only when this PR fully resolves the issue.
+For related work, use `Related to #<issue-number>` or link the issue directly. -->
