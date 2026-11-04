@@ -1,149 +1,264 @@
 # JobTracker
 
-A job application tracking dashboard built with React, Vite, Tailwind CSS, and Supabase.
+JobTracker is a responsive dashboard for tracking job applications, built with **React, TypeScript, Vite, Tailwind CSS, and Supabase**.
 
-**[Live Demo](https://job-tracker-seven-self.vercel.app)** | **[Getting Started](#getting-started)** | **[Quality Checks](#quality-checks)**
+[**Live Application**](https://job-tracker-seven-self.vercel.app/) · [**Source Code**](https://github.com/simbongile-mkhotheli/JobTracker) · [**Getting Started**](#getting-started)
+
+---
 
 ## Overview
 
-JobTracker helps users save and manage job applications in one place. The app includes authentication, protected routes, Supabase-backed persistence, form validation, search/filtering, and a responsive dashboard UI.
+Managing job applications can become difficult when company details, application dates, interview information, and application statuses are spread across different places.
 
-This repository is intended to demonstrate practical frontend engineering habits: clear component boundaries, incremental refactoring, focused tests, database migrations, and a maintainable project structure.
+JobTracker brings application records and progress summaries together in one dashboard. The codebase shows how the UI, application state, and database access fit together in a tested React app.
 
-## Engineering Highlights
+## Features
 
-- **Authenticated user flows** with Supabase Auth and protected dashboard routes
-- **Supabase persistence** with Row Level Security so users can only access their own applications
-- **Service layer** that maps between app-facing camelCase models and database snake_case rows
-- **Reusable UI primitives** for form fields, modals, cards, empty states, and layout structure
-- **Focused validation and utility tests** for application data, website normalization, and service behavior
-- **Quality workflow** with ESLint, Vitest, GitHub Actions, Husky, and lint-staged
-- **Incremental Git history** using focused branches, conventional commits, and PR-based changes
+### Application Management
+
+- Add, edit, and delete job applications.
+- Record company names, job roles, application dates, websites, and notes.
+- Track applications using **Applied**, **Interview**, **Offer**, and **Rejected** statuses.
+- Search applications by company or job role.
+- Filter applications by status.
+- View and update application notes.
+
+### Dashboard
+
+- View total applications, interviews, offers, and rejections.
+- Browse applications in a responsive layout.
+- Receive feedback for loading, empty, success, validation, and error states.
+
+### Authentication and Data Privacy
+
+- Sign up and sign in with email and password through Supabase Auth.
+- Use **Try Demo** to sign in to a shared demo account. Visitors using that account see the same demo records.
+- Access the dashboard through protected routes.
 
 ## Tech Stack
 
-| Area             | Tools                                      |
-| ---------------- | ------------------------------------------ |
-| Frontend         | React, Vite                                |
-| Styling          | Tailwind CSS                               |
-| Routing          | React Router                               |
-| Backend services | Supabase Auth, Supabase Database           |
-| Testing          | Vitest, React Testing Library              |
-| Quality          | ESLint, Husky, lint-staged, GitHub Actions |
-| Icons            | Lucide React                               |
+| Category             | Technologies                        |
+| -------------------- | ----------------------------------- |
+| Frontend             | React, TypeScript, JavaScript, Vite |
+| Styling              | Tailwind CSS                        |
+| Routing              | React Router                        |
+| Authentication       | Supabase Auth                       |
+| Database             | Supabase PostgreSQL                 |
+| Testing              | Vitest, React Testing Library       |
+| Code Quality         | ESLint, Prettier, TypeScript        |
+| Development Workflow | Git, GitHub, Husky, lint-staged     |
+| CI                   | GitHub Actions                      |
+| Deployment           | Vercel                              |
 
-## Getting Started
+## Engineering Approach
 
-Use **Node.js 24.x** with its bundled npm for local development. The locked development tooling includes `lint-staged`, which requires Node.js 22.22.1 or newer.
+JobTracker separates interface components, application state, and database operations to make the code easier to understand, test, and maintain.
 
-The [CI workflow](.github/workflows/ci.yml) currently selects Node.js 20; updating CI to the recommended Node.js 24.x runtime is still pending.
+### Application Architecture
 
-```bash
-git clone https://github.com/simbongile-mkhotheli/JobTracker.git
-cd JobTracker
-npm ci
+```text
+React Components
+       |
+       v
+Custom Hooks
+       |
+       v
+Service Layer
+       |
+       v
+Supabase Client
+       |
+       v
+PostgreSQL + Row Level Security
 ```
 
-`npm ci` installs the dependencies recorded in `package-lock.json`, matching CI's installation command.
+**React components** handle presentation and user interactions.
 
-Create `.env.local` using the variables below, then start the dev server:
+**Custom hooks**, including `useApplications`, coordinate application state, filtering, statistics, and CRUD operations.
 
-```bash
-npm run dev
-```
+**The service layer** handles Supabase requests and maps database fields to application-facing models.
 
-Visit `http://localhost:5173` after the dev server starts.
+**Supabase Authentication** identifies the signed-in user.
 
-## Environment Variables
+**Database policies** enforce record ownership independently of frontend checks.
 
-Create a `.env.local` file in the project root:
+## Database Security
 
-```env
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
+JobTracker uses PostgreSQL Row Level Security to protect the `applications` table.
 
-Use the Supabase project URL for `VITE_SUPABASE_URL` such as `https://your-project-id.supabase.co`, not the `/rest/v1/` endpoint.
+Four ownership policies control access:
 
-Restart the dev server after changing environment variables.
+- **SELECT:** Authenticated users can read their own applications.
+- **INSERT:** Authenticated users can create records belonging to themselves.
+- **UPDATE:** Authenticated users can modify their own records without transferring ownership.
+- **DELETE:** Authenticated users can delete their own applications.
 
-## Project Structure
+The database also enforces schema constraints and relationships between application records and authenticated users.
 
-```txt
-src/
-|-- App.jsx              # Root route configuration
-|-- main.jsx             # React entry point
-|-- components/          # Reusable UI and feature components
-|   |-- auth/            # Auth-related route guards
-|   `-- ui/              # Shared UI primitives
-|-- contexts/            # React context providers
-|-- hooks/               # Custom React hooks
-|-- layouts/             # Page layout wrappers
-|-- lib/                 # Third-party client setup
-|-- pages/               # Route-level screens
-|-- services/            # Supabase data access
-|-- styles/              # Shared style constants
-|-- test/                # Test setup
-|-- utils/               # Validation and business helpers
-`-- constants/           # Shared app constants
-```
+### Database Baseline
 
-## Architecture Notes
+The hosted rebuild and migration reconciliation are complete. The
+[initial applications migration](supabase/migrations/20261102175831_initial_applications.sql)
+is the sole active migration and is recorded as applied on the hosted project.
+Local database seeding is disabled.
 
-- `useApplications` owns dashboard state and coordinates application CRUD actions.
-- `applicationService` isolates Supabase queries and handles database-to-app model mapping.
-- Form validation lives in shared utilities so it can be tested outside the UI.
-- Database documentation distinguishes the deployed schema from historical migration SQL.
-- Components are kept mostly presentational, with data access pushed into hooks and services.
+Future schema changes should be tested in an isolated environment and reviewed before being applied to a hosted database.
 
-## Database Schema
+For technical details, see:
 
-The hosted database and migration history are reconciled. The sole active
-[baseline migration](supabase/migrations/20261102175831_initial_applications.sql)
-creates the `applications` table for a fresh database and is already recorded
-as applied on the hosted project. Local seeding is disabled.
+- [Database Schema](docs/supabase-schema.md)
+- [Migration and Recovery Documentation](docs/database-migrations.md)
 
-Test future migrations locally and review them before applying them to a hosted
-project. Keep the retired SQL in Git history and the security archive for
-reference. See the [deployed schema](docs/supabase-schema.md) and
-[migration and recovery record](docs/database-migrations.md).
+## Testing and Code Quality
 
-The `applications` table uses Row Level Security policies so authenticated users can only read and mutate their own records.
+Testing and automated checks help reduce regressions and make changes easier to verify.
 
-## Quality Checks
+### Automated Testing
 
-Run the same checks as CI, in this order, before opening a PR:
+The test suite covers important application behaviours, including:
+
+- Authentication session loading and state changes.
+- Login and signup success and failure scenarios.
+- Application creation, updates, deletion, and error handling.
+- Form validation and invalid input.
+- Application ownership filters in the service layer.
+- Dashboard state and statistics.
+- Search, filtering, and utility functions.
+
+Tests focus on observable behaviour, meaningful assertions, and important positive and negative scenarios.
+
+The Vitest suite uses mocked Supabase responses to check application behaviour. Live RLS verification is a separate check against the hosted database.
+
+### Database Security Verification
+
+Two ordinary authenticated test accounts verified owner access and denial of cross-user reads, inserts, updates, deletes, and ownership transfers. Final browser checks covered demo login and application create, edit, and delete workflows. See the [verification record](docs/database-migrations.md#verification).
+
+### Quality Checks
+
+After completing [setup](#getting-started), run the checks relevant to your change:
 
 ```bash
 npm run lint
 npm run typecheck
 npm run test:run
 npm run build
+npm run format:check
 ```
 
-These commands run ESLint, the TypeScript compiler without emitting files, Vitest in non-watch mode, and the Vite production build. Typecheck is separate because the build command does not run the TypeScript compiler.
+| Command                | Purpose                                         |
+| ---------------------- | ----------------------------------------------- |
+| `npm run lint`         | Detect code quality and linting issues          |
+| `npm run typecheck`    | Check TypeScript types without generating files |
+| `npm run test:run`     | Execute automated tests once                    |
+| `npm run build`        | Verify the production build                     |
+| `npm run format:check` | Check formatting consistency                    |
 
-Current automated coverage focuses on:
+The production build and TypeScript checks are separate because the Vite build does not replace the TypeScript compiler check.
 
-- Authentication session loading, auth state changes, and login/signup success and failure paths
-- Application service requests, ownership filters, and database error handling
-- Application state and statistics after successful and failed saves or deletions
-- Validation boundaries, invalid form submissions, and normalized submission values
-- Website normalization and helper logic
-- Filtering and statistics utilities
+### Continuous Integration
 
-These tests use mocked Supabase responses. They do not verify a live database's Row Level Security policies or a complete deployed authentication flow.
+The repository contains a GitHub Actions workflow configured to run linting, type checking, tests, and the production build for pull requests targeting `main` and pushes to `main`.
 
-## Contributing
+The [workflow](.github/workflows/ci.yml) currently selects Node.js 20. Use Node.js 24 for local checks. An account billing restriction has prevented GitHub Actions runs from starting. Report local results and hosted CI results separately.
 
-This project follows a lightweight PR workflow:
+## Getting Started
 
-- Branches use focused prefixes such as `feature/`, `fix/`, `refactor/`, `test/`, and `docs/`
-- Commits use conventional messages such as `feat:`, `fix:`, `refactor:`, `test:`, and `docs:`
-- Pull requests should solve one clear problem and include verification notes
+### Prerequisites
 
-See `CONTRIBUTING.md` for the full workflow.
+Before running the project locally, install:
+
+- Node.js 24.x with npm. The locked `lint-staged` version requires Node.js 22.22.1 or newer.
+- Git.
+- A code editor.
+- Access to a Supabase project.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/simbongile-mkhotheli/JobTracker.git
+cd JobTracker
+```
+
+### 2. Install Dependencies
+
+```bash
+npm ci
+```
+
+This installs dependencies using the versions recorded in `package-lock.json`.
+
+### 3. Configure Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-public-key
+```
+
+Use your Supabase project URL and public client key. The URL should be the project root, such as `https://your-project-id.supabase.co`.
+
+Never place service-role keys, database passwords, or other private credentials in frontend environment variables.
+
+A new Supabase project also needs the reviewed application database schema before database features can work.
+
+See the [database migration documentation](docs/database-migrations.md) before provisioning a new environment.
+
+Do not reset or modify an existing hosted database without reviewing the impact.
+
+### 4. Start the Development Server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+Restart the development server after changing environment variables.
+
+## Project Structure
+
+```text
+src/
+├── components/     # Feature components and reusable UI
+├── contexts/       # Authentication context
+├── hooks/          # Application state and behaviour
+├── layouts/        # Shared page layouts
+├── lib/            # Supabase client setup
+├── pages/          # Dashboard and authentication pages
+├── services/       # Database operations and data mapping
+├── types/          # Shared TypeScript types
+├── utils/          # Validation and helper functions
+└── test/           # Test setup
+
+supabase/
+├── config.toml     # Supabase CLI configuration
+└── migrations/     # Version-controlled database baseline
+
+docs/               # Database and project documentation
+.github/workflows/  # GitHub Actions workflow
+```
+
+## Development Workflow
+
+JobTracker follows a lightweight GitHub workflow:
+
+1. Identify a problem or improvement and define its scope.
+2. Create a focused branch.
+3. Implement the change using existing project patterns.
+4. Add or update relevant tests when behaviour changes.
+5. Run local quality checks.
+6. Open a pull request explaining the change and its verification.
+7. Review and merge the change.
+
+Pull requests should focus on one problem or improvement and avoid unrelated changes.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming conventions, commit guidelines, testing expectations, and contribution instructions.
+
+## Project Status
+
+JobTracker is an active learning and portfolio project.
 
 ## License
 
-MIT
+Distributed under the [MIT License](LICENSE).
