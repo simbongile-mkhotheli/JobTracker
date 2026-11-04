@@ -98,14 +98,15 @@ src/
 
 ## Database Schema
 
-**Migration execution is prohibited pending baseline reconciliation.** This is a
-documented rule, not a technical block. Production repair `20261102122254` is
-already recorded in Supabase, with its exact SQL archived outside the active
-migration directory. Historical migration files are not an accurate production
-baseline; do not replay them or mark them applied.
+The hosted database and migration history are reconciled. The sole active
+[baseline migration](supabase/migrations/20261102175831_initial_applications.sql)
+creates the `applications` table for a fresh database and is already recorded
+as applied on the hosted project. Local seeding is disabled.
 
-See the [deployed schema](docs/supabase-schema.md) and
-[security repair record and migration warnings](docs/database-migrations.md).
+Test future migrations locally and review them before applying them to a hosted
+project. Keep the retired SQL in Git history and the security archive for
+reference. See the [deployed schema](docs/supabase-schema.md) and
+[migration and recovery record](docs/database-migrations.md).
 
 The `applications` table uses Row Level Security policies so authenticated users can only read and mutate their own records.
 
