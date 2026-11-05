@@ -8,7 +8,7 @@ Contributions that improve functionality, user experience, documentation, or cod
 
 ## Getting Started
 
-Follow the [README setup steps](README.md#getting-started) to install dependencies with Node.js 24 and configure a development Supabase project for app testing.
+Follow the [README setup steps](README.md#getting-started) to install dependencies with the Node.js version pinned in `package.json` and configure a development Supabase project for app testing.
 
 ## Development Workflow
 
@@ -91,7 +91,7 @@ npm run format:check
 
 These commands check lint rules, TypeScript errors, automated tests, the production build, and formatting.
 
-The [CI workflow](.github/workflows/ci.yml) is configured to run linting, type checking, tests, and the production build for pull requests targeting `main`. Record hosted check results separately from local checks.
+The [CI workflow](.github/workflows/ci.yml) uses the same Node.js pin and is configured to run linting, type checking, tests, and the production build for pull requests targeting `main`. Record hosted check results separately from local checks.
 
 If a check fails, investigate the cause instead of disabling the check or weakening tests to make them pass.
 

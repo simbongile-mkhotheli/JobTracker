@@ -159,7 +159,7 @@ The production build and TypeScript checks are separate because the Vite build d
 
 The repository contains a GitHub Actions workflow configured to run linting, type checking, tests, and the production build for pull requests targeting `main` and pushes to `main`.
 
-The [workflow](.github/workflows/ci.yml) currently selects Node.js 20. Use Node.js 24 for local checks. An account billing restriction has prevented GitHub Actions runs from starting. Report local results and hosted CI results separately.
+The [workflow](.github/workflows/ci.yml) reads the Node.js version from the Volta pin in [`package.json`](package.json). An account billing restriction has prevented GitHub Actions runs from starting. Report local results and hosted CI results separately.
 
 ## Getting Started
 
@@ -167,7 +167,7 @@ The [workflow](.github/workflows/ci.yml) currently selects Node.js 20. Use Node.
 
 Before running the project locally, install:
 
-- Node.js 24.x with npm. The locked `lint-staged` version requires Node.js 22.22.1 or newer.
+- Node.js 24.x with npm. Use the version pinned in [`package.json`](package.json) to match CI. Volta selects that version automatically when installed.
 - Git.
 - A code editor.
 - Access to a Supabase project.
